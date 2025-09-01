@@ -3,14 +3,94 @@
 <head>
     <title>My Portfolio</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+            min-height: 100vh;
+            padding: 60px 80px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .author {
+            color: #606060;
+            margin-bottom: 40px;
+            font-size: 1em;
+        }
+
+        .directory {
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .directory-item {
+            color: #808080;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .directory-item:before {
+            content: "├── ";
+            color: #404040;
+            margin-right: 8px;
+        }
+
+        .directory-item:last-child:before {
+            content: "└── ";
+        }
+
+        .directory-item a {
+            color: #808080;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .directory-item a:hover {
+            color: #ffffff;
+        }
+
+        .proj-number {
+            color: #ffffff;
+            margin-right: 8px;
+        }
+
+        .proj-name {
+            color: #606060;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 40px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to My CS180 Portfolio!</h1>
-    <a href="./1/index.html">Project 1</a>
+    <h1>CS180 Portfolio</h1>
+    <p class="author">Sukhamrit Singh</p>
+    
+    <div class="directory">
+        <div class="directory-item">
+            <a href="./proj0.html">
+                <span class="proj-number">proj0/</span>
+                <span class="proj-name">Becoming Friends with Your Camera</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

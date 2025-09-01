@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 0 - CS180</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 60px 80px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #808080;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        .author {
+            color: #606060;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        h2 {
+            color: #ffffff;
+            font-size: 1.8em;
+            font-weight: 300;
+            margin: 80px 0 40px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Selfie Grid */
+        .selfie-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 240px); /* each image ~250px wide */
+            justify-content: center; /* center the grid */
+            gap: 0px;
+            margin-bottom: 80px;
+        }
+
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            background: #1a1a1a;
+            transition: transform 0.2s ease;
+        }
+
+        .selfie-grid .image-container {
+            border-radius: 0;
+        }
+
+        .selfie-grid .image-container:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .selfie-grid .image-container:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0.9;
+            transition: opacity 0.2s ease;
+        }
+
+        .image-container:hover img {
+            opacity: 1;
+        }
+
+        .image-container p {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #ffffff;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            border-radius: 2px;
+        }
+
+        /* Architecture Grid */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 80px;
+            max-width: 1200px;
+        }
+
+        .arch-grid .image-container {
+            border-radius: 4px;
+        }
+
+        .arch-grid .image-container img {
+            width: 100%;
+        }
+
+        /* Dolly Zoom Section */
+        .dolly-section {
+            margin: 80px 0;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        /* Minimal Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            font-size: 0.9em;
+            color: #808080;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #2a2a2a;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #404040;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #808080;
+            border-radius: 50%;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+            background: #ffffff;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .speed-control label {
+            font-size: 0.9em;
+            color: #808080;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .speed-slider {
+            width: 120px;
+            height: 2px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #2a2a2a;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .speed-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        #speedValue {
+            font-size: 0.85em;
+            color: #606060;
+            min-width: 45px;
+        }
+
+        /* GIF Container */
+        .gif-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 4/3;
+            background: #1a1a1a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dolly-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .dolly-frame.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .selfie-anim-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .selfie-anim-frame.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                padding: 40px;
+            }
+
+            .selfie-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+            
+            .selfie-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .arch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="margin-bottom: 60px;">
+            <div style="margin-bottom: 15px;">
+                <a href="./index.html" style="color: #606060; text-decoration: none; transition: color 0.2s ease; display: inline-block;">
+                    <span style="transition: color 0.2s ease;">../</span>
+                </a>
+                <style>
+                    a:hover span {
+                        color: #ffffff !important;
+                    }
+                </style>
+            </div>
+            <h1 style="margin-bottom: 20px;">proj0/</h1>
+            <div style="margin-left: 40px;">
+                <div style="margin: 8px 0;">
+                    <a href="#part1" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">├── </span>
+                        <span style="color: #ffffff;">part1/</span>
+                        <span style="color: #606060; margin-left: 8px;">Selfie - The Wrong Way vs. The Right Way</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#part2" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">├── </span>
+                        <span style="color: #ffffff;">part2/</span>
+                        <span style="color: #606060; margin-left: 8px;">Architectural Perspective Compression</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#part3" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">└── </span>
+                        <span style="color: #ffffff;">part3/</span>
+                        <span style="color: #606060; margin-left: 8px;">The Dolly Zoom</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <h2 id="part1">Part 1: Selfie - The Wrong Way vs. The Right Way</h2>
+        <div class="controls" style="margin-bottom: 40px;">
+            <div class="toggle-container">
+                <span class="toggle-label">Animate</span>
+                <div class="toggle-switch" id="selfieToggle" onclick="toggleSelfieAnimation()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="toggle-label" id="selfieLabel" style="min-width: 40px;">Off</span>
+            </div>
+        </div>
+        <div class="selfie-grid" id="selfieGrid">
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1725.JPG" alt="0.5x zoom" class="selfie-frame">
+                <p>0.5x</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1726.JPG" alt="1x zoom" class="selfie-frame">
+                <p>1x</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1727.JPG" alt="2x zoom" class="selfie-frame">
+                <p>2x</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1728.JPG" alt="3x zoom" class="selfie-frame">
+                <p>3x</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1729.JPG" alt="4x zoom" class="selfie-frame">
+                <p>4x</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Selfie/IMG_1730.JPG" alt="5x zoom" class="selfie-frame">
+                <p>5x</p>
+            </div>
+        </div>
+        <div class="gif-container" id="selfieGif" style="display: none; max-width: 600px; aspect-ratio: 3/4;">
+            <img src="proj0/Selfie/IMG_1725.JPG" class="selfie-anim-frame active" alt="0.5x zoom">
+            <img src="proj0/Selfie/IMG_1726.JPG" class="selfie-anim-frame" alt="1x zoom">
+            <img src="proj0/Selfie/IMG_1727.JPG" class="selfie-anim-frame" alt="2x zoom">
+            <img src="proj0/Selfie/IMG_1728.JPG" class="selfie-anim-frame" alt="3x zoom">
+            <img src="proj0/Selfie/IMG_1729.JPG" class="selfie-anim-frame" alt="4x zoom">
+            <img src="proj0/Selfie/IMG_1730.JPG" class="selfie-anim-frame" alt="5x zoom">
+        </div>
+        
+        <h2 id="part2">Part 2: Architectural Perspective Compression</h2>
+        <div class="arch-grid">
+            <div class="image-container">
+                <img src="proj0/Architectural/IMG_1711.JPG" alt="Zoomed In">
+                <p>Compressed</p>
+            </div>
+            <div class="image-container">
+                <img src="proj0/Architectural/IMG_1712.JPG" alt="Wide Angle">
+                <p>Wide Angle</p>
+            </div>
+        </div>
+        
+        <h2 id="part3">Part 3: The Dolly Zoom</h2>
+        <div class="dolly-section">
+            <div class="controls">
+                <div class="toggle-container">
+                    <span class="toggle-label">Direction</span>
+                    <div class="toggle-switch" id="directionToggle" onclick="toggleDirection()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span class="toggle-label" id="directionLabel" style="min-width: 60px;">Forward</span>
+                </div>
+                
+                <div class="speed-control">
+                    <label for="speedSlider">Speed</label>
+                    <input type="range" id="speedSlider" class="speed-slider" min="50" max="500" value="150" oninput="updateSpeed(this.value)">
+                    <span id="speedValue">150ms</span>
+                </div>
+            </div>
+            
+            <div class="gif-container">
+                <img src="proj0/DollyEffect/IMG_1670.JPG" class="dolly-frame active" alt="Frame 1">
+                <img src="proj0/DollyEffect/IMG_1671.JPG" class="dolly-frame" alt="Frame 2">
+                <img src="proj0/DollyEffect/IMG_1672.JPG" class="dolly-frame" alt="Frame 3">
+                <img src="proj0/DollyEffect/IMG_1673.JPG" class="dolly-frame" alt="Frame 4">
+                <img src="proj0/DollyEffect/IMG_1674.JPG" class="dolly-frame" alt="Frame 5">
+                <img src="proj0/DollyEffect/IMG_1675.JPG" class="dolly-frame" alt="Frame 6">
+                <img src="proj0/DollyEffect/IMG_1676.JPG" class="dolly-frame" alt="Frame 7">
+                <img src="proj0/DollyEffect/IMG_1677.JPG" class="dolly-frame" alt="Frame 8">
+                <img src="proj0/DollyEffect/IMG_1678.JPG" class="dolly-frame" alt="Frame 9">
+                <img src="proj0/DollyEffect/IMG_1679.JPG" class="dolly-frame" alt="Frame 10">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const frames = document.querySelectorAll('.dolly-frame');
+        let currentFrame = 0;
+        let direction = 1;
+        let animationInterval;
+        let currentSpeed = 150;
+        
+        function animateDolly() {
+            frames[currentFrame].classList.remove('active');
+            currentFrame = currentFrame + direction;
+            
+            if (currentFrame >= frames.length) {
+                currentFrame = 0;
+            } else if (currentFrame < 0) {
+                currentFrame = frames.length - 1;
+            }
+            
+            frames[currentFrame].classList.add('active');
+        }
+        
+        function toggleDirection() {
+            direction = -direction;
+            const toggle = document.getElementById('directionToggle');
+            const label = document.getElementById('directionLabel');
+            
+            toggle.classList.toggle('active');
+            label.textContent = direction === 1 ? 'Forward' : 'Reverse';
+        }
+        
+        function updateSpeed(value) {
+            currentSpeed = parseInt(value);
+            document.getElementById('speedValue').textContent = value + 'ms';
+            
+            clearInterval(animationInterval);
+            animationInterval = setInterval(animateDolly, currentSpeed);
+        }
+        
+        // Start animation
+        animationInterval = setInterval(animateDolly, currentSpeed);
+
+        // Selfie animation
+        const selfieFrames = document.querySelectorAll('.selfie-anim-frame');
+        let currentSelfieFrame = 0;
+        let selfieInterval;
+        let selfieAnimating = false;
+
+        function animateSelfie() {
+            selfieFrames[currentSelfieFrame].classList.remove('active');
+            currentSelfieFrame = (currentSelfieFrame + 1) % selfieFrames.length;
+            selfieFrames[currentSelfieFrame].classList.add('active');
+        }
+
+        function toggleSelfieAnimation() {
+            const toggle = document.getElementById('selfieToggle');
+            const label = document.getElementById('selfieLabel');
+            const grid = document.getElementById('selfieGrid');
+            const gif = document.getElementById('selfieGif');
+            
+            selfieAnimating = !selfieAnimating;
+            toggle.classList.toggle('active');
+            
+            if (selfieAnimating) {
+                label.textContent = 'On';
+                grid.style.display = 'none';
+                gif.style.display = 'block';
+                selfieInterval = setInterval(animateSelfie, 200);
+            } else {
+                label.textContent = 'Off';
+                grid.style.display = 'grid';
+                gif.style.display = 'none';
+                clearInterval(selfieInterval);
+            }
+        }
+    </script>
+</body>
+</html>
