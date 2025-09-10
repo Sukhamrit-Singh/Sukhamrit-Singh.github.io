@@ -328,24 +328,27 @@
         <p>
             However, this solution did not solve the problem of aligning the BGR images of Emir. Note that in the case 
             like the Emir of Bukhara, the images to be matched do not actually have the same brightness values (they are 
-            different color channels), so I needed to use a different feature than raw pixels.
+            different color channels).
         </p>
         <p>
-            To solve this, I used an edge-detection algorithm (Sobel) on each BGR image, and then ran the alignment 
-            algorithm on these images. Along with this, to optimize the process of finding the best shifts, I 
-            implemented an image pyramid to downsample images by a factor of 2 and run the alignment algorithm on 
-            each downsampled image, from most downsampled to least, updating the optimal shifts after each. 
-            Additionally, I switched my alignment metric to NCC. The results were then applied on all images, 
-            including low-resolution images, and the alignments worked great.
+            To solve this, I switched my alignment metric from Euclidian Distance to NCC, which ended up working much 
+            better for alignment. In addition to this, I finetuned some of the cropping and search window values. I 
+            changed the cropping to crop images from 10% to 15%, and defined the search window such that if the algorithm 
+            is currently at the highest point of the image pyramid, have a search window of -30 to 30 pixels. Else, have it 
+            as 2 pixels. This will allow the first search to be more exhaustive, and there after, be shorter and more optimized. 
+            After these results, we can see the Emir image nearly aligned, but not perfectly.
+
+            To completely align the image, I used an edge-detection algorithm (Sobel) on each BGR image, and then ran the alignment 
+            algorithm on these images. The results were then applied on all images, and the alignments worked great.
         </p>
         <div class="comparison">
             <div class="comparison-item">
                 <img src="proj1/emir_wrong.png" alt="Emir with pixel-based alignment">
-                <div class="comparison-label">Before</div>
+                <div class="comparison-label">Pre-Sobel (main assignment)</div>
             </div>
             <div class="comparison-item">
-                <img src="proj1/emir.png" alt="Emir with edge-based alignment">
-                <div class="comparison-label">After</div>
+                <img src="proj1/emir.jpeg" alt="Emir with edge-based alignment">
+                <div class="comparison-label">Post-Sobel (bells and whistles)</div>
             </div>
         </div>
 
@@ -355,21 +358,21 @@
         <div class="image-grid">
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/cathedral.png" alt="Cathedral">
+                    <img src="proj1/cathedral.jpeg" alt="Cathedral">
                 </div>
                 <div class="image-caption">Cathedral</div>
                 <div class="offset-info">G: (5, 2) | R: (12, 3)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/monastery.png" alt="Monastery">
+                    <img src="proj1/monastery.jpeg" alt="Monastery">
                 </div>
                 <div class="image-caption">Monastery</div>
                 <div class="offset-info">G: (-3, 2) | R: (3, 2)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/tobolsk.png" alt="Tobolsk">
+                    <img src="proj1/tobolsk.jpeg" alt="Tobolsk">
                 </div>
                 <div class="image-caption">Tobolsk</div>
                 <div class="offset-info">G: (3, 3) | R: (6, 3)</div>
@@ -380,77 +383,77 @@
         <div class="image-grid">
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/emir.png" alt="Emir">
+                    <img src="proj1/emir.jpeg" alt="Emir">
                 </div>
                 <div class="image-caption">Emir of Bukhara</div>
                 <div class="offset-info">G: (49, 24) | R: (107, 40)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/church.png" alt="Church">
+                    <img src="proj1/church.jpeg" alt="Church">
                 </div>
                 <div class="image-caption">Church</div>
                 <div class="offset-info">G: (25, 4) | R: (58, -4)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/harvesters.png" alt="Harvesters">
+                    <img src="proj1/harvesters.jpeg" alt="Harvesters">
                 </div>
                 <div class="image-caption">Harvesters</div>
                 <div class="offset-info">G: (60, 17) | R: (124, 14)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/icon.png" alt="Icon">
+                    <img src="proj1/icon.jpeg" alt="Icon">
                 </div>
                 <div class="image-caption">Icon</div>
                 <div class="offset-info">G: (42, 17) | R: (90, 23)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/self_portrait.png" alt="Self Portrait">
+                    <img src="proj1/self_portrait.jpeg" alt="Self Portrait">
                 </div>
                 <div class="image-caption">Self Portrait</div>
                 <div class="offset-info">G: (78, 29) | R: (176, 37)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/three_generations.png" alt="Three Generations">
+                    <img src="proj1/three_generations.jpeg" alt="Three Generations">
                 </div>
                 <div class="image-caption">Three Generations</div>
-                <div class="offset-info">G: (54, 12) | R: (111, 9)</div>
+                <div class="offset-info">G: (53, 12) | R: (111, 9)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/melons.png" alt="Melons">
+                    <img src="proj1/melons.jpeg" alt="Melons">
                 </div>
                 <div class="image-caption">Melons</div>
                 <div class="offset-info">G: (80, 10) | R: (177, 13)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/italil.png" alt="Italian">
+                    <img src="proj1/italil.jpeg" alt="Italian">
                 </div>
                 <div class="image-caption">Italian</div>
                 <div class="offset-info">G: (38, 22) | R: (77, 36)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/lugano.png" alt="Lugano">
+                    <img src="proj1/lugano.jpeg" alt="Lugano">
                 </div>
                 <div class="image-caption">Lugano</div>
                 <div class="offset-info">G: (41, -17) | R: (92, -29)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/lastochikino.png" alt="Lastochikino">
+                    <img src="proj1/lastochikino.jpeg" alt="Lastochikino">
                 </div>
                 <div class="image-caption">Lastochikino</div>
                 <div class="offset-info">G: (-3, -2) | R: (76, -8)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/siren.png" alt="Siren">
+                    <img src="proj1/siren.jpeg" alt="Siren">
                 </div>
                 <div class="image-caption">Siren</div>
                 <div class="offset-info">G: (49, -6) | R: (96, -24)</div>
@@ -464,21 +467,21 @@
         <div class="image-grid">
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/fav1.png" alt="Favorite 1">
+                    <img src="proj1/fav1.jpeg" alt="Favorite 1">
                 </div>
                 <div class="image-caption">Collection Image 1</div>
                 <div class="offset-info">G: (40, 5) | R: (105, 1)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/fav2.png" alt="Favorite 2">
+                    <img src="proj1/fav2.jpeg" alt="Favorite 2">
                 </div>
                 <div class="image-caption">Collection Image 2</div>
-                <div class="offset-info">G: (59, 28) | R: (126, 34)</div>
+                <div class="offset-info">G: (59, 27) | R: (126, 34)</div>
             </div>
             <div class="image-wrapper">
                 <div class="image-container">
-                    <img src="proj1/fav3.png" alt="Favorite 3">
+                    <img src="proj1/fav3.jpeg" alt="Favorite 3">
                 </div>
                 <div class="image-caption">Collection Image 3</div>
                 <div class="offset-info">G: (29, 2) | R: (119, -2)</div>
