@@ -373,7 +373,7 @@
         <ul>
             <li><strong>Normalized Cross-Correlation (NCC):</strong> Switched from L2 distance to NCC, which is more robust 
             to brightness variations between color channels</li>
-            <li><strong>Image Pyramids:</strong> Downsamples each BGR channel by a factor of 2 to create multiple resolution levels</li>
+            <li><strong>Image Pyramids:</strong> Downsampled each BGR channel by a factor of 2 to create multiple resolution levels</li>
             <li><strong>Adaptive Search Windows:</strong> Used -30 to 30 pixels at the coarsest level, then ±2 pixels 
             at finer levels for refinement</li>
             <li><strong>Increased Cropping:</strong> Extended border cropping from 10% to 15% for better border frame removal</li>
@@ -384,13 +384,13 @@
         <h3>Image Pyramid Algorithm Process</h3>
         <p>
             The pyramid alignment process works iteratively. Starting with the original high-resolution image, I downsample 
-            it by factors of 2 in a loop until reaching a minimum size of 256x256. At the coarsest level, I perform 
+            it by factors of 2 in a loop until reaching a minimum dimension of 256 pixels. At the coarsest level, I perform 
             an exhaustive search over a larger window (-30 to 30 pixels) using NCC to find the best alignment. This coarse 
             alignment is then propagated up to the next level by scaling the offsets by 2. At each finer level, I only need 
             to search within ±2 pixels of the scaled estimate, dramatically reducing computation time while maintaining accuracy.
         </p>
         <p>
-            The NCC metric itself computes the normalized dot product between two image patches, making it more invariant to 
+            The NCC metric itself computes the normalized dot product between two images, making it more invariant to 
             differences in brightness and contrast. By aligning both the 
             blue and red channels to the green channel (instead of aligning to the blue channel), I ensure that any alignment errors don't 
             compound, resulting in more consistent and accurate color reconstruction across all images.
