@@ -254,17 +254,17 @@
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
-                    <a href="#approach" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                    <a href="#single-scale" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
                         <span style="color: #404040;">├── </span>
-                        <span style="color: #ffffff;">approach/</span>
-                        <span style="color: #606060; margin-left: 8px;">My Implementation Process</span>
+                        <span style="color: #ffffff;">single_scale_alignment/</span>
+                        <span style="color: #606060; margin-left: 8px;">L2 Distance Method</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
-                    <a href="#results" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                    <a href="#multi-scale" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
                         <span style="color: #404040;">├── </span>
-                        <span style="color: #ffffff;">results/</span>
-                        <span style="color: #606060; margin-left: 8px;">Aligned Images Gallery</span>
+                        <span style="color: #ffffff;">multi_scale_pyramid/</span>
+                        <span style="color: #606060; margin-left: 8px;">NCC with Image Pyramids</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
@@ -299,26 +299,30 @@
             Sergei Mikhailovich Prokudin-Gorskii was a photographer who captured the Russian Empire in color 
             decades before color photography became widespread. His technique involved taking three separate 
             exposures through red, green, and blue filters on glass plates. This project implements an algorithm 
-            to automatically align these images to the green channel using metrics such as Euclidian Distance or Normalized Cross-Correlation, 
+            to automatically align these images using metrics such as Euclidian Distance or Normalized Cross-Correlation, 
             and then combine these three channel images into full-color photographs, displaying the vibrant images 
             that were taken nearly a century ago.
         </p>
 
-        <h2 id="approach">My Approach</h2>
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #40ff40;">
+            <h2 id="single-scale" style="margin: 0; color: #40ff40;">Part 1: Single-Scale Alignment</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Using L2 (Euclidean) Distance for Low-Resolution Images</div>
+        </div>
         
-        <h3>Initial Implementation: Low-Resolution Images</h3>
+        <h3>Implementation Approach</h3>
         <p>
-            Initially, I started off with designing a bare-bones approach to work on the lower-resolution images. 
-            This involved exhaustively searching over a window of -15 to 15 pixels and using the standard Euclidian 
-            Distance metric for alignment. After calculating optimal Euclidian Distances, I used <code>np.roll</code> 
-            to align the images using the optimal shifts we detected.
+            For the single-scale alignment, I implemented an exhaustive search approach specifically for the low-resolution 
+            images (cathedral.jpg, monastery.jpg, tobolsk.jpg). The algorithm searches over a window of -15 to 15 pixels 
+            using the L2 (Euclidean) distance metric as the similarity measure. I found the optimal shift values by minimizing 
+            the L2 distance metric, and after calculating optimal Euclidian Distances, I used <code>np.roll</code> to align the 
+            images using the optimal shifts we detected.
         </p>
         
-        <h3>Problem 1: Border Artifacts</h3>
+        <h3>Handling Border Artifacts</h3>
         <p>
-            However, it was noticed that the images were still not properly aligning, and I believe that was due to 
-            the border frame on the original .tif and .jpg files. To get around this, I cropped images by 10% first 
-            to get rid of the frame, and then performed necessary operations. With this, the low-resolution images worked.
+            The initial alignment however was not perfect due to the black borders present in the original glass plate scans. 
+            To address this, I implemented a 10% crop from all edges before computing the alignment metrics. This 
+            preprocessing step significantly improved the L2-based alignment quality for the single-scale approach.
         </p>
         <div class="comparison">
             <div class="comparison-item">
@@ -331,37 +335,7 @@
             </div>
         </div>
 
-        <h3>Problem 2: The Emir Challenge</h3>
-        <p>
-            However, this solution did not solve the problem of aligning the BGR images of Emir. Note that in the case 
-            like the Emir of Bukhara, the images to be matched do not actually have the same brightness values (they are 
-            different color channels).
-        </p>
-        <p>
-            To solve this, I switched my alignment metric from Euclidian Distance to NCC, which ended up working much 
-            better for alignment. In addition to this, I finetuned some of the cropping and search window values. I 
-            changed the cropping to crop images from 10% to 15%, and defined the search window such that if the algorithm 
-            is currently at the highest point of the image pyramid, have a search window of -30 to 30 pixels. Else, have it 
-            as 2 pixels. This will allow the first search to be more exhaustive, and there after, be shorter and more optimized. 
-            After these results, we can see the Emir image nearly aligned, but not perfectly.
-
-            To completely align the image, I noticed that aligning to the G channel was more robust than aligning to the B channel. 
-            Thus, I switched my algorithm to align both B and R channels to the G channel as the reference, and after doing this, the images aligned nearly perfect.
-        </p>
-        <div class="comparison">
-            <div class="comparison-item">
-                <img src="proj1/emir_wrong.png" alt="Emir with pixel-based alignment">
-                <div class="comparison-label">B channel alignment</div>
-            </div>
-            <div class="comparison-item">
-                <img src="proj1/emir.jpeg" alt="Emir with edge-based alignment">
-                <div class="comparison-label">G channel alignment</div>
-            </div>
-        </div>
-
-        <h2 id="results">Results</h2>
-        
-        <h3>Low-Resolution Images</h3>
+        <h3>Single-Scale Results</h3>
         <div class="image-grid">
             <div class="image-wrapper">
                 <div class="image-container">
@@ -386,7 +360,59 @@
             </div>
         </div>
 
-        <h3>High-Resolution Images</h3>
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #4080ff;">
+            <h2 id="multi-scale" style="margin: 0; color: #4080ff;">Part 2: Multi-Scale Pyramid Alignment</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Using NCC with Image Pyramids for High-Resolution Images</div>
+        </div>
+
+        <h3>Transitioning to NCC and Pyramids</h3>
+        <p>
+            For high-resolution images, the single-scale approach was computationally expensive and less accurate. 
+            To avoid this, I implemented a multi-scale pyramid approach with the following key improvements:
+        </p>
+        <ul>
+            <li><strong>Normalized Cross-Correlation (NCC):</strong> Switched from L2 distance to NCC, which is more robust 
+            to brightness variations between color channels</li>
+            <li><strong>Image Pyramids:</strong> Downsamples each BGR channel by a factor of 2 to create multiple resolution levels</li>
+            <li><strong>Adaptive Search Windows:</strong> Used -30 to 30 pixels at the coarsest level, then ±2 pixels 
+            at finer levels for refinement</li>
+            <li><strong>Increased Cropping:</strong> Extended border cropping from 10% to 15% for better border frame removal</li>
+            <li><strong>Green Channel Reference:</strong> Aligned both B and R channels to G rather than alinging to B. I noticed 
+            this method improved alignment to make the resulting image about perfectly aligned</li>
+        </ul>
+        
+        <h3>Image Pyramid Algorithm Process</h3>
+        <p>
+            The pyramid alignment process works iteratively. Starting with the original high-resolution image, I downsample 
+            it by factors of 2 in a loop until reaching a minimum size of 256x256. At the coarsest level, I perform 
+            an exhaustive search over a larger window (-30 to 30 pixels) using NCC to find the best alignment. This coarse 
+            alignment is then propagated up to the next level by scaling the offsets by 2. At each finer level, I only need 
+            to search within ±2 pixels of the scaled estimate, dramatically reducing computation time while maintaining accuracy.
+        </p>
+        <p>
+            The NCC metric itself computes the normalized dot product between two image patches, making it more invariant to 
+            differences in brightness and contrast. By aligning both the 
+            blue and red channels to the green channel (instead of aligning to the blue channel), I ensure that any alignment errors don't 
+            compound, resulting in more consistent and accurate color reconstruction across all images.
+        </p>
+        
+        <h3>The Emir Challenge - Comparing Methods</h3>
+        <p>
+            After making the above changes, the alignment of the Emir image particularly demonstrated the superiority of using the G channel to align 
+            rather than the B channel.
+        </p>
+        <div class="comparison">
+            <div class="comparison-item">
+                <img src="proj1/emir_wrong.png" alt="Emir with pixel-based alignment">
+                <div class="comparison-label">Blue Channel Alignment</div>
+            </div>
+            <div class="comparison-item">
+                <img src="proj1/emir.jpeg" alt="Emir with edge-based alignment">
+                <div class="comparison-label">Green Channel Alignment</div>
+            </div>
+        </div>
+
+        <h3>Multi-Scale Pyramid Results</h3>
         <div class="image-grid">
             <div class="image-wrapper">
                 <div class="image-container">
