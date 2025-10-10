@@ -348,16 +348,9 @@
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#a4" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">├── </span>
+                        <span style="color: #404040;">└── </span>
                         <span style="color: #ffffff;">A.4/</span>
                         <span style="color: #606060; margin-left: 8px;">Blend into a Mosaic</span>
-                    </a>
-                </div>
-                <div style="margin: 8px 0;">
-                    <a href="#summary" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">└── </span>
-                        <span style="color: #ffffff;">summary/</span>
-                        <span style="color: #606060; margin-left: 8px;">Deliverables & Notes</span>
                     </a>
                 </div>
             </div>
@@ -458,7 +451,7 @@
 
         <p>
             Rearranging these gives a linear system in the form <strong>\(A h = b\)</strong>, where each point
-            correspondence contributes two rows to <code>A</code> and <code>b</code>. For clarity, below is the
+            correspondence contributes two rows to $A$ and $b$. For clarity, below is the
             explicit 8-row system that results from four point correspondences (\((x_i,y_i)\) ↦ \((x'_i,y'_i)\),
             \(i=1\ldots4\)):
         </p>
@@ -487,7 +480,7 @@
 
         <p>
             After stacking all n correspondences, we get an overdetermined system. Since small errors in the point matches 
-            can lead to large variations in <code>H</code>, I solved this system using a <strong>least-squares</strong> 
+            can lead to large variations in $H$, I solved this system using a <strong>least-squares</strong> 
             approach to minimize error:
         </p>
 
@@ -498,7 +491,7 @@
         </div>
 
         <p>
-            I then appended 1.0 as the final entry of <code>h</code> and reshaped it into a $3×3$ homography matrix <code>H</code>. 
+            I then appended 1.0 as the final entry of $h$ and reshaped it into a $3×3$ homography matrix $H$. 
             This normalization ensures that $H[2,2] = 1$.
         </p>
         <h3>Sink correspondence visualization, assembled system, and recovered H</h3>
@@ -581,9 +574,9 @@
                                 <p>
                                 $$
                                 H = \begin{bmatrix}
-                                2.7 & 0.2 & -1749.8 \\
-                                0.4 & 2.2 & -390.9 \\
-                                0   & 0   & 1
+                                2.70952308 & 1.82219090 * 10^{-1} & -1.74977712 * 10^{3} \\
+                                4.44075072 * 10^{-1} & 2.24081933 & -3.90934467 * 10^{2} \\
+                                1.25176295 * 10^{-3} & 1.02030528 * 10^{-4} & 1.00000000
                                 \end{bmatrix}
                                 $$
                                 </p>
@@ -596,91 +589,231 @@
 
         <h2 id="a3">A.3: Warp the Images</h2>
         <p>
-            I implemented inverse warping with two interpolation methods from scratch:
+            This part consisted of implementing inverse warping with two interpolation methods from scratch:
         </p>
         <ul>
-            <li><strong>Nearest neighbor:</strong> Round source coordinates to the nearest pixel.</li>
-            <li><strong>Bilinear:</strong> Weighted average of four neighboring pixels.</li>
+            <li><strong>Nearest neighbor:</strong> Round source coordinates to the nearest pixel.
+                <ul>
+                    <li><code>warpImageNearestNeighbor(im, H)</code></li>
+                </ul>
+            </li>
+            <li><strong>Bilinear:</strong> Weighted average of four neighboring pixels.
+                <ul>
+                    <li><code>warpImageBilinear(im, H)</code></li>
+                </ul>
+            </li>
         </ul>
         <p>
-            Functions: <code>warpImageNearestNeighbor(im, H)</code> and <code>warpImageBilinear(im, H)</code>. 
-            Below are the warping results for each dataset, comparing nearest neighbor versus bilinear interpolation.
-            Note how bilinear interpolation produces smoother results but is computationally more expensive.
+            Now that we have our homography matrix from the previous part, we can apply it on our images and be warp them. 
+            I implemented two warping mechanisms, which have a key distiction when it comes to choosing pixel values, but 
+            everything up until then is similar. First, I predicted the bounding box of an input image by piping the four 
+            corners of the image through the computed homography matrix. From here, we get the newly projected corners for 
+            the source image in the new output image, which we can use to determine the shape of the complete output mosaic. 
+            Initially, the mosaic is zero-filled, meaning its a black canvas. To fill the mosaic, we have to using inverse-warping 
+            to retrieve the pixel values from the original source image, and this is where the difference in the 
+            nearest-neighbor and bilinear mechanisms come in.
         </p>
 
-        <!-- Bay Warping -->
-        <h3>Bay Scene Warping</h3>
-        <div class="comparison">
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/bay/4_warped_nn.jpg" alt="Bay - Nearest Neighbor">
+        <h3>Nearest Neighbor Interpolation</h3>
+        <p>
+            Nearest Neighbor interpolation assigns the value of the closest pixel to the computed source location. This is done by 
+            taking the inverse of the homography matrix $H$ and applying it to the newly projected image as mentioned above. 
+            However, when taking the inverse, the $(x, y)$ pixel values are not guaranteed to be exact integer values. To overcome this, 
+            the nearest neighbor approach just takes the closest pixel to the inverse-calculated pixel, and sets the pixel value in 
+            the mosaic image to the value of the closest pixel in the source image. One thing to note is the pixel value was only chosen 
+            if the mapped back value was in the bounds of the source image.
+        </p>
+        <p>
+            For example, given a pixel location $(x_m, y_m)$ in the mosaic, we first compute its corresponding location in the source image 
+            using the inverse homography:
+            <br>
+            $$p_s = H^{-1} \, p_m = H^{-1} \, \begin{bmatrix} x_m \\ y_m \\ 1 \end{bmatrix} = 
+            \begin{bmatrix} x_s' \\ y_s' \\ w \end{bmatrix},$$
+        </p>
+        <p>
+            Since $(x_s,y_s)$ are generally not integers, the nearest neighbor method locates the pixel position by rounding:
+            <br>
+            $$x_{NN} = \\{round}(x_s), \\y_{NN} = \\{round}(y_s).$$
+        </p>
+        <p>
+            Finally, the pixel value at $(x_{NN},y_{NN})$ in the source image is assigned to the mosaic pixel at $(x_m,y_m)$. This rounding-based 
+            calculation, while computationally simple, results in a less smooth output compared to interpolation methods that weight nearby pixel 
+            values.
+        </p>
+
+        <h3>Bilinear Interpolation</h3>
+        <p>
+            Bilinear interpolation computes a weighted average of the four nearest pixels based on the distance from the source location. If we 
+            do the same procedure as the nearest neighbors where we take the inverse of the homography matrix and apply it on the mosaic pixel coordinate 
+            pair $(x_m, y_m),$ we get the corresponding location in the source image: $(x_s, y_s).$ From here, we can apply bilinear interpolation which 
+            takes the pixel values of all the 4 closest pixels around $(x_s, y_s),$ and sets the value of $(x_s, y_s)$ to be the weighted average of all 4 
+            pixel values. Bilinear interpolation may require more computation than nearest neighbors, but it results in a smoother image in the end. One 
+            thing to note is the pixel value was only chosen if the mapped back value was in the bounds of the source image.
+        </p>
+
+        <!-- Bilinear Interpolation Section -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 40px; margin: 40px auto; width: 80%; flex-wrap: wrap;">
+            
+            <!-- Left: Bilinear Interpolation Image -->
+            <div style="flex: 1; min-width: 300px; text-align: center;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/bilinear.png"
+                        alt="Bilinear Interpolation Diagram"
+                        style="max-width: 70%; height: auto; border: none; outline: none; display: block; margin: 0 auto;">
+                </div>
+                <div class="image-caption">Bilinear Interpolation Mapping</div>
             </div>
-            <div class="comparison-label">Nearest Neighbor Interpolation</div>
-            </div>
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/bay/3_warped_bilinear.jpg" alt="Bay - Bilinear">
-            </div>
-            <div class="comparison-label">Bilinear Interpolation</div>
+
+            <!-- Right: Equation Explanation -->
+            <div style="flex: 1.2; min-width: 340px; display: flex; flex-direction: column; justify-content: center;">
+                <h4 style="color: #ffffff; margin-bottom: 12px; text-align: center;">Mathematical Formulation</h4>
+
+                <div class="equation" style="text-align: center;">
+                    <p>
+                        $$
+                        x_1 = \lfloor x_s \rfloor,\quad x_2 = x_1 + 1,\quad
+                        y_1 = \lfloor y_s \rfloor,\quad y_2 = y_1 + 1
+                        $$
+                    </p>
+                </div>
+
+                <div class="equation" style="text-align: center;">
+                    <p>
+                        $$
+                        a = x_s - x_1,\qquad b = y_s - y_1
+                        $$
+                    </p>
+                </div>
+
+                <div class="equation" style="text-align: center;">
+                    <p>
+                        $$
+                        \begin{aligned}
+                        I(x_s, y_s) &=
+                        (1 - a)(1 - b)\,I(y_1, x_1) +
+                        a(1 - b)\,I(y_1, x_2) \\\\
+                        &\quad + (1 - a)b\,I(y_2, x_1) +
+                        a b\,I(y_2, x_2)
+                        \end{aligned}
+                        $$
+                    </p>
+                </div>
+
+                <!-- Explanation of I(x, y) -->
+                <p style="font-size: 14px; color: #cccccc; text-align: center; margin-top: 10px;">
+                    <em>Note:</em> <strong>I(x, y)</strong> represents the image intensity (pixel value) at coordinates (x, y).
+                </p>
             </div>
         </div>
 
-        <!-- Chairs Warping -->
-        <h3>Indoor Chairs Warping</h3>
-        <div class="comparison">
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/chairs/4_warped_nn.jpg" alt="Chairs - Nearest Neighbor">
+
+        <p>
+            Both of these approaches had their strenghts and weaknesses. The nearest neighbors approach was generally faster, less 
+            computationally intensive, and less blurry than the bilinear interpolation method. However, bilinear interpolation produced  
+            more smooth results due to the weighted blending of surrounding pixel values. On the images below, we can notice the differences 
+            in results. For the rectified door, the shadow on the left side of the door is much more linear and smooth in bilinear interpolation. 
+            In the nearest neighbors, the shadow outline is more jagged. However, in the table rectified image, the bilinear interpolation is 
+            more blurry than the nearest neighbor result.
+        </p>
+
+        <!-- Door Rectification  -->
+        <h3>Door Rectification</h3>
+
+        <div class="comparison" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 20px;">
+
+            <!-- Original Image -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/door/1_source_image.jpg" alt="Bay - Original"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Original Image</div>
             </div>
-            <div class="comparison-label">Nearest Neighbor Interpolation</div>
+
+            <!-- Nearest Neighbor -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/door/3_rectified_nn.jpg" alt="Bay - Nearest Neighbor"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Nearest Neighbor Interpolation</div>
+                <div class="comparison-label" style="margin-top: 8px;">Time: 8.6 seconds</div>
             </div>
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/chairs/3_warped_bilinear.jpg" alt="Chairs - Bilinear">
-            </div>
-            <div class="comparison-label">Bilinear Interpolation</div>
+
+            <!-- Bilinear -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/door/2_rectified_bilinear.jpg" alt="Bay - Bilinear"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Bilinear Interpolation</div>
+                <div class="comparison-label" style="margin-top: 8px;">Time: 16.2 seconds</div>
             </div>
         </div>
 
-        <!-- Downtown Warping -->
-        <h3>Downtown Scene Warping</h3>
-        <div class="comparison">
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/downtown/4_warped_nn.jpg" alt="Downtown - Nearest Neighbor">
-            </div>
-            <div class="comparison-label">Nearest Neighbor Interpolation</div>
-            </div>
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/downtown/3_warped_bilinear.jpg" alt="Downtown - Bilinear">
-            </div>
-            <div class="comparison-label">Bilinear Interpolation</div>
-            </div>
-        </div>
 
-        <!-- Sink Warping -->
-        <h3>Kitchen Sink Warping</h3>
-        <div class="comparison">
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/sink/4_warped_nn.jpg" alt="Sink - Nearest Neighbor">
+        <!-- Table Rectification  -->
+        <h3>Table Rectification</h3>
+
+        <div class="comparison" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 20px;">
+
+            <!-- Original Image -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/table/1_source_image.jpg" alt="Bay - Original"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Original Image</div>
             </div>
-            <div class="comparison-label">Nearest Neighbor Interpolation</div>
+
+            <!-- Nearest Neighbor -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/table/3_rectified_nn.jpg" alt="Bay - Nearest Neighbor"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Nearest Neighbor Interpolation</div>
+                <div class="comparison-label" style="margin-top: 8px;">Time: 39 seconds</div>
             </div>
-            <div class="comparison-item">
-            <div class="image-container">
-                <img src="proj3/sink/3_warped_bilinear.jpg" alt="Sink - Bilinear">
-            </div>
-            <div class="comparison-label">Bilinear Interpolation</div>
+
+            <!-- Bilinear -->
+            <div class="comparison-item" style="text-align: center; flex: 1; min-width: 260px;">
+                <div class="image-container" style="display: flex; justify-content: center;">
+                    <img src="proj3/table/2_rectified_bilinear.jpg" alt="Bay - Bilinear"
+                        style="max-width: 100%; height: auto; border: none; outline: none;">
+                </div>
+                <div class="comparison-label" style="margin-top: 8px;">Bilinear Interpolation</div>
+                <div class="comparison-label" style="margin-top: 8px;">Time: 54 seconds</div>
             </div>
         </div>
 
         <h2 id="a4">A.4: Blend the Images into a Mosaic</h2>
         <p>
-            After warping, I blended images using weighted averaging with alpha masks. I computed an alpha value that is
-            1 near the image center and decays linearly toward the edges (simple feathering). Below are the final mosaic
-            results for each dataset, comparing nearest neighbor versus bilinear interpolation mosaics.
+            After warping, now its time to blend the images together, and to do this, I used weighted averaging with alpha masks. 
+            The first step to doing this was computing the overall size of the combined mosaic image based on the bounding boxes of 
+            the reference and warped images. Each image was also then assigned an alpha mask that takes the value of 1 near the image 
+            center and decays linearly towards the edges, creating a smooth alpha mask effect. The blending process then combines both 
+            images by taking the weighted sum of their overlapping regions, which is then normalized by the accumulated alpha values. 
+        </p>
+        
+        <div class="equation" style="text-align: center;">
+            <p>
+                $$
+                I_{\text{mosaic}}(x, y) = 
+                \frac{\alpha_1(x, y)\,I_1(x, y) + \alpha_2(x, y)\,I_2(x, y)}
+                    {\alpha_1(x, y) + \alpha_2(x, y)}
+                $$
+            </p>
+        </div>
+
+        <p style="font-size: 14px; color: #cccccc; text-align: center; margin-top: 10px;">
+            <em>Note:</em> \(I_1, I_2\) are the source and warped images, and \(\alpha_1, \alpha_2\) are their corresponding alpha weights that decay toward the edges.
+        </p>
+
+        <p>    
+            The 
+            result is a smooth transition between overlapping regions, resulting in the final mosaic of the two images. Below are the 
+            final mosaic results for each dataset, comparing nearest neighbor versus bilinear interpolation mosaics.
         </p>
 
         <!-- Bay Mosaics -->
@@ -688,50 +821,93 @@
         <div class="comparison">
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/bay/6_mosaic_nn.jpg" alt="Bay Mosaic - Nearest Neighbor">
+                <img src="proj3/bay/1_source_image.jpg" alt="Bay Mosaic - Nearest Neighbor">
             </div>
-            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+            <div class="comparison-label">Source Image</div>
             </div>
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/bay/5_mosaic_bilinear.jpg" alt="Bay Mosaic - Bilinear">
+                <img src="proj3/bay/2_reference_image.jpg" alt="Bay Mosaic - Bilinear">
+            </div>
+            <div class="comparison-label">Reference Image</div>
+            </div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/bay/6_mosaic_nn.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/bay/5_mosaic_bilinear.jpg" alt="sink source" style="width: 100%; height: auto;">
             </div>
             <div class="comparison-label">Bilinear Mosaic</div>
-            </div>
         </div>
 
         <!-- Chairs Mosaics -->
-        <h3>Indoor Chairs Mosaics</h3>
+
+        <h3>Outdoor Chairs Mosaics</h3>
         <div class="comparison">
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/chairs/6_mosaic_nn.jpg" alt="Chairs Mosaic - Nearest Neighbor">
+                <img src="proj3/chairs/1_source_image.jpg" alt="Bay Mosaic - Nearest Neighbor">
             </div>
-            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+            <div class="comparison-label">Source Image</div>
             </div>
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/chairs/5_mosaic_bilinear.jpg" alt="Chairs Mosaic - Bilinear">
+                <img src="proj3/chairs/2_reference_image.jpg" alt="Bay Mosaic - Bilinear">
             </div>
-            <div class="comparison-label">Bilinear Mosaic</div>
+            <div class="comparison-label">Reference Image</div>
             </div>
         </div>
 
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/chairs/6_mosaic_nn.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/chairs/5_mosaic_bilinear.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Bilinear Mosaic</div>
+        </div>
+
         <!-- Downtown Mosaics -->
-        <h3>Downtown Scene Mosaics</h3>
+        <h3>Downtown Mosaics</h3>
         <div class="comparison">
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/downtown/6_mosaic_nn.jpg" alt="Downtown Mosaic - Nearest Neighbor">
+                <img src="proj3/downtown/1_source_image.jpg" alt="Bay Mosaic - Nearest Neighbor">
             </div>
-            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+            <div class="comparison-label">Source Image</div>
             </div>
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/downtown/5_mosaic_bilinear.jpg" alt="Downtown Mosaic - Bilinear">
+                <img src="proj3/downtown/2_reference_image.jpg" alt="Bay Mosaic - Bilinear">
+            </div>
+            <div class="comparison-label">Reference Image</div>
+            </div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/downtown/6_mosaic_nn.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/downtown/5_mosaic_bilinear.jpg" alt="sink source" style="width: 100%; height: auto;">
             </div>
             <div class="comparison-label">Bilinear Mosaic</div>
-            </div>
         </div>
 
         <!-- Sink Mosaics -->
@@ -739,34 +915,31 @@
         <div class="comparison">
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/sink/6_mosaic_nn.jpg" alt="Sink Mosaic - Nearest Neighbor">
+                <img src="proj3/sink/1_source_image.jpg" alt="Bay Mosaic - Nearest Neighbor">
             </div>
-            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+            <div class="comparison-label">Source Image</div>
             </div>
             <div class="comparison-item">
             <div class="image-container">
-                <img src="proj3/sink/5_mosaic_bilinear.jpg" alt="Sink Mosaic - Bilinear">
+                <img src="proj3/sink/2_reference_image.jpg" alt="Bay Mosaic - Bilinear">
             </div>
-            <div class="comparison-label">Bilinear Mosaic</div>
+            <div class="comparison-label">Reference Image</div>
             </div>
         </div>
 
-        <h2 id="summary">Deliverables &amp; Notes</h2>
-        <p>
-            Completed deliverables for proj3A:
-        </p>
-        <ul>
-            <li>Implementation of <code>computeH(im1_pts, im2_pts)</code> (least-squares homography).</li>
-            <li>Inverse-warping functions with nearest-neighbor and bilinear interpolation.</li>
-            <li>Rectification examples (2+ images) and three mosaics using weighted blending.</li>
-            <li>Discussion of interpolation trade-offs and blending strategy. (A.5 not required.)</li>
-        </ul>
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/sink/6_mosaic_nn.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Nearest Neighbor Mosaic</div>
+        </div>
 
-        <p>
-            To preview locally, open this file in your browser, and replace the placeholder images in the <code>proj3/</code> folder with
-            your computed outputs. If you'd like, I can add thumbnails from your <code>Proj3/hybrid_python/</code> folder or wire up the
-            actual images from the repository — tell me which images to include.
-        </p>
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/sink/5_mosaic_bilinear.jpg" alt="sink source" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Bilinear Mosaic</div>
+        </div>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
             © 2025 Sukhamrit Singh. All rights reserved.
