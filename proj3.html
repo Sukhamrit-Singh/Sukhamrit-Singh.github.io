@@ -362,9 +362,44 @@
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#partb" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">└── </span>
+                        <span style="color: #404040;">├── </span>
                         <span style="color: #ffffff;">partB/</span>
                         <span style="color: #606060; margin-left: 8px;">Feature Detection and Matching</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#b1" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">│   ├── </span>
+                        <span style="color: #ffffff;">B.1/</span>
+                        <span style="color: #606060; margin-left: 8px;">Harris Corner Detection</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#b2" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">│   ├── </span>
+                        <span style="color: #ffffff;">B.2/</span>
+                        <span style="color: #606060; margin-left: 8px;">Feature Descriptor Extraction</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#b3" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">│   ├── </span>
+                        <span style="color: #ffffff;">B.3/</span>
+                        <span style="color: #606060; margin-left: 8px;">Feature Matching</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#b4" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">│   └── </span>
+                        <span style="color: #ffffff;">B.4/</span>
+                        <span style="color: #606060; margin-left: 8px;">RANSAC for Robust Homography</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#summary" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">└── </span>
+                        <span style="color: #ffffff;">summary/</span>
+                        <span style="color: #606060; margin-left: 8px;">Project Summary and Results</span>
                     </a>
                 </div>
             </div>
@@ -967,60 +1002,64 @@
             <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Automatic feature detection and matching for seamless mosaics</div>
         </div>
 
-        <h3>B.1: Harris Corner Detection</h3>
+        <h2 id="b1">B.1: Harris Corner Detection</h2>
         <p>
-            I implemented the Harris corner detection algorithm following Section 2 of the Brown et al. paper. 
-            The Harris detector identifies corners by analyzing local intensity variations in multiple directions. 
-            I used a single-scale implementation without sub-pixel accuracy as specified in the assignment.
+            The Harris corner detector identifies corners by analyzing local intensity variations. Corners have 
+            large intensity changes in multiple directions, unlike edges (one direction) or flat regions (minimal changes).
         </p>
 
         <h4>Mathematical Foundation</h4>
         <p>
-            The Harris corner detector is based on the structure tensor, which measures local image structure. 
-            For each pixel $(x, y)$, we compute the image gradients $I_x$ and $I_y$ using Sobel operators, then 
-            build the structure tensor $M$:
+            We build the structure tensor $M$ by accumulating gradient information over a local window:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                M = \begin{bmatrix}
-                \sum_{W} I_x^2 & \sum_{W} I_x I_y \\
-                \sum_{W} I_x I_y & \sum_{W} I_y^2
-                \end{bmatrix} = \begin{bmatrix}
-                A & C \\
-                C & B
+                M = \sum_{(x,y) \in W} \begin{bmatrix}
+                I_x^2 & I_x I_y \\
+                I_x I_y & I_y^2
                 \end{bmatrix}
                 $$
             </p>
         </div>
 
         <p>
-            where $W$ represents a local window around the pixel. The corner response function $R$ is then computed as:
+            The structure tensor can be diagonalized to reveal principal directions of intensity change:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                R = \det(M) - k(\text{trace}(M))^2 = AB - C^2 - k(A + B)^2
+                M = R^{-1} \begin{bmatrix}
+                \lambda_1 & 0 \\
+                0 & \lambda_2
+                \end{bmatrix} R
                 $$
             </p>
         </div>
 
         <p>
-            where $k$ is typically set to 0.04-0.06. Corners are identified as local maxima of $R$ above a threshold.
+            where $\lambda_1$ and $\lambda_2$ are eigenvalues representing gradient magnitudes. The Harris corner response is:
         </p>
 
-        <div class="algorithm-box">
-            <p><strong>Harris Corner Detection Algorithm:</strong></p>
-            <ul>
-                <li>Compute image gradients $I_x$ and $I_y$ using Sobel operators</li>
-                <li>Build the structure tensor $M$ for each pixel in a local window</li>
-                <li>Calculate the corner response $R = \det(M) - k(\text{trace}(M))^2$</li>
-                <li>Apply non-maximum suppression to find local maxima</li>
-                <li>Threshold the response to select strong corners</li>
-            </ul>
+        <div class="equation">
+            <p>
+                $$
+                R = \frac{\det(M)}{\text{trace}(M)} = \frac{\lambda_1 \lambda_2}{\lambda_1 + \lambda_2}
+                $$
+            </p>
         </div>
+
+        <p>
+            This is maximized when both eigenvalues are large (corners), small when one is large (edges), and very small when both are small (flat regions).
+        </p>
+
+        <h4>Implementation Results</h4>
+        <p>
+            We ran the Harris corner detection algorithm with <code>edge_discard = 20</code> and <code>min_distance = 1</code>, 
+            which generated <strong>33,265 Harris detections</strong> across the images.
+        </p>
 
         <h4>Harris Corners Detection Results</h4>
         <p>Below are the detected Harris corners overlaid on the source images:</p>
@@ -1042,29 +1081,27 @@
 
         <h4>Adaptive Non-Maximal Suppression (ANMS)</h4>
         <p>
-            I implemented Adaptive Non-Maximal Suppression (ANMS) following Section 3 of the paper to ensure 
-            well-distributed corner points across the image. ANMS selects the strongest corners while maintaining 
-            a minimum distance between selected points.
+            ANMS ensures well-distributed corner points by maintaining minimum distances between selected points. 
+            Once an interest point appears, it will always remain in the list because if a point is a maximum 
+            in radius $r$, it is also a maximum in radius $r' < r$.
         </p>
 
-        <h4>ANMS Mathematical Formulation</h4>
         <p>
-            ANMS ensures that selected corners are well-distributed by maintaining a minimum distance between them. 
-            For each corner point $p_i$ with response $R_i$, we find the minimum distance to a corner with higher response:
+            In practice, we robustify the non-maximal suppression by requiring that a neighbor has a sufficiently 
+            larger strength. The minimum suppression radius $r_i$ is given by:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                r_i = \min_{j: R_j > R_i} \|p_i - p_j\|_2
+                r_i = \min_j |x_i - x_j|, \quad \text{s.t. } f(x_i) < c_{\text{robust}} f(x_j), \quad x_j \in I
                 $$
             </p>
         </div>
 
         <p>
-            We then select the top $N$ corners with the largest $r_i$ values, ensuring they are both strong 
-            (high $R_i$) and well-distributed (large $r_i$). This creates a more uniform distribution of 
-            feature points across the image.
+            where $x_i$ is a 2D interest point image location, and $I$ is the set of all interest points. 
+            This reduced the 33,265 Harris detections to <strong>500 well-distributed corners</strong>.
         </p>
 
         <div class="comparison">
@@ -1089,7 +1126,7 @@
             <div class="comparison-label">ANMS Corners Overlap Visualization</div>
         </div>
 
-        <h3>B.2: Feature Descriptor Extraction</h3>
+        <h3 id="b2">B.2: Feature Descriptor Extraction</h3>
         <p>
             I implemented feature descriptor extraction following Section 4 of the Brown et al. paper. 
             For each detected corner, I extracted axis-aligned 8x8 patches from a larger 40x40 window 
@@ -1163,7 +1200,7 @@
             </div>
         </div>
 
-        <h3>B.3: Feature Matching</h3>
+        <h3 id="b3">B.3: Feature Matching</h3>
         <p>
             I implemented feature matching following Section 5 of the paper. The matching process uses 
             normalized cross-correlation to find similar feature descriptors between image pairs. I used 
@@ -1235,7 +1272,7 @@
             <div class="comparison-label">Matched Features Between Image Pairs</div>
         </div>
 
-        <h3>B.4: RANSAC for Robust Homography</h3>
+        <h3 id="b4">B.4: RANSAC for Robust Homography</h3>
         <p>
             I implemented 4-point RANSAC from scratch to compute robust homography estimates from 
             the matched features. RANSAC (Random Sample Consensus) is essential for handling outliers 
@@ -1362,6 +1399,38 @@
             creates high-quality mosaics comparable to manual stitching. RANSAC effectively handles outliers 
             in feature matches, ensuring robust homography computation. The system demonstrates the power 
             of automated computer vision techniques for image stitching applications.</p>
+        </div>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 30px; margin: 60px -20px 40px; border-left: 3px solid #ff8040;">
+            <h2 id="summary" style="margin: 0; color: #ff8040;">Project Summary</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Complete overview of image warping, mosaicing, and feature detection</div>
+        </div>
+
+        <p>
+            This project successfully implemented two complementary approaches to image mosaicing and warping:
+        </p>
+
+        <h3>Part A: Manual Image Warping and Mosaicing</h3>
+        <ul>
+            <li><strong>Homography Recovery:</strong> Computed 3x3 homography matrices from manually selected point correspondences</li>
+            <li><strong>Image Warping:</strong> Implemented inverse warping with both nearest-neighbor and bilinear interpolation</li>
+            <li><strong>Mosaic Creation:</strong> Blended multiple warped images into seamless panoramas using alpha blending</li>
+            <li><strong>Results:</strong> Successfully created high-quality mosaics for bay, chairs, downtown, and sink scenes</li>
+        </ul>
+
+        <h3>Part B: Automatic Feature Detection and Matching</h3>
+        <ul>
+            <li><strong>Harris Corner Detection:</strong> Implemented corner detection with adaptive non-maximum suppression (ANMS)</li>
+            <li><strong>Feature Descriptors:</strong> Extracted normalized 8x8 patch descriptors around detected corners</li>
+            <li><strong>Feature Matching:</strong> Matched features using SSD distance with ratio test for robustness</li>
+            <li><strong>RANSAC Homography:</strong> Computed robust homographies using 4-point RANSAC to handle outliers</li>
+            <li><strong>Results:</strong> Created automatic mosaics comparable in quality to manual stitching</li>
+        </ul>
+
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="#overview" style="color: #4080ff; text-decoration: none; font-size: 1.1em; padding: 12px 24px; border: 1px solid #4080ff; border-radius: 4px; transition: all 0.3s ease; display: inline-block;">
+                ↑ Back to Overview
+            </a>
         </div>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
