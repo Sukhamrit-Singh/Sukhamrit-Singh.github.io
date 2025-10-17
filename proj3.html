@@ -974,12 +974,49 @@
             I used a single-scale implementation without sub-pixel accuracy as specified in the assignment.
         </p>
 
+        <h4>Mathematical Foundation</h4>
+        <p>
+            The Harris corner detector is based on the structure tensor, which measures local image structure. 
+            For each pixel $(x, y)$, we compute the image gradients $I_x$ and $I_y$ using Sobel operators, then 
+            build the structure tensor $M$:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                M = \begin{bmatrix}
+                \sum_{W} I_x^2 & \sum_{W} I_x I_y \\
+                \sum_{W} I_x I_y & \sum_{W} I_y^2
+                \end{bmatrix} = \begin{bmatrix}
+                A & C \\
+                C & B
+                \end{bmatrix}
+                $$
+            </p>
+        </div>
+
+        <p>
+            where $W$ represents a local window around the pixel. The corner response function $R$ is then computed as:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                R = \det(M) - k(\text{trace}(M))^2 = AB - C^2 - k(A + B)^2
+                $$
+            </p>
+        </div>
+
+        <p>
+            where $k$ is typically set to 0.04-0.06. Corners are identified as local maxima of $R$ above a threshold.
+        </p>
+
         <div class="algorithm-box">
             <p><strong>Harris Corner Detection Algorithm:</strong></p>
             <ul>
-                <li>Compute image gradients I_x and I_y using Sobel operators</li>
-                <li>Build the structure tensor M for each pixel</li>
-                <li>Calculate the corner response R = det(M) - k(trace(M))²</li>
+                <li>Compute image gradients $I_x$ and $I_y$ using Sobel operators</li>
+                <li>Build the structure tensor $M$ for each pixel in a local window</li>
+                <li>Calculate the corner response $R = \det(M) - k(\text{trace}(M))^2$</li>
                 <li>Apply non-maximum suppression to find local maxima</li>
                 <li>Threshold the response to select strong corners</li>
             </ul>
@@ -1008,6 +1045,26 @@
             I implemented Adaptive Non-Maximal Suppression (ANMS) following Section 3 of the paper to ensure 
             well-distributed corner points across the image. ANMS selects the strongest corners while maintaining 
             a minimum distance between selected points.
+        </p>
+
+        <h4>ANMS Mathematical Formulation</h4>
+        <p>
+            ANMS ensures that selected corners are well-distributed by maintaining a minimum distance between them. 
+            For each corner point $p_i$ with response $R_i$, we find the minimum distance to a corner with higher response:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                r_i = \min_{j: R_j > R_i} \|p_i - p_j\|_2
+                $$
+            </p>
+        </div>
+
+        <p>
+            We then select the top $N$ corners with the largest $r_i$ values, ensuring they are both strong 
+            (high $R_i$) and well-distributed (large $r_i$). This creates a more uniform distribution of 
+            feature points across the image.
         </p>
 
         <div class="comparison">
@@ -1039,13 +1096,52 @@
             to create well-blurred descriptors. The descriptors are bias/gain-normalized for robust matching.
         </p>
 
+        <h4>Mathematical Formulation</h4>
+        <p>
+            For each corner point $(x_c, y_c)$, I extract a 40×40 window $W$ centered at the corner. 
+            From this window, I sample an 8×8 descriptor patch $D$ by taking every 5th pixel:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                D[i,j] = W[5i + x_c - 20, 5j + y_c - 20], \quad i,j \in \{0,1,\ldots,7\}
+                $$
+            </p>
+        </div>
+
+        <p>
+            The descriptor is then bias/gain-normalized to make it robust to illumination changes:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \mu = \frac{1}{64}\sum_{i=0}^{7}\sum_{j=0}^{7} D[i,j], \quad \sigma = \sqrt{\frac{1}{64}\sum_{i=0}^{7}\sum_{j=0}^{7} (D[i,j] - \mu)^2}
+                $$
+            </p>
+        </div>
+
+        <div class="equation">
+            <p>
+                $$
+                D_{\text{norm}}[i,j] = \frac{D[i,j] - \mu}{\sigma}
+                $$
+            </p>
+        </div>
+
+        <p>
+            This normalization ensures that the descriptor has zero mean and unit variance, making it 
+            invariant to linear illumination changes.
+        </p>
+
         <div class="algorithm-box">
             <p><strong>Feature Descriptor Extraction Process:</strong></p>
             <ul>
-                <li>Extract 40x40 window around each corner point</li>
-                <li>Sample 8x8 patches from the larger window</li>
-                <li>Apply bias/gain normalization to descriptors</li>
-                <li>Create rotation-invariant feature vectors</li>
+                <li>Extract 40×40 window around each corner point</li>
+                <li>Sample 8×8 patches from the larger window (every 5th pixel)</li>
+                <li>Apply bias/gain normalization: $\mu = 0$, $\sigma = 1$</li>
+                <li>Create 64-dimensional feature vectors</li>
             </ul>
         </div>
 
@@ -1075,13 +1171,57 @@
             neighbors to filter out ambiguous matches.
         </p>
 
+        <h4>Mathematical Formulation</h4>
+        <p>
+            For each feature descriptor $d_i$ in image 1, I compute the normalized cross-correlation with 
+            all descriptors $d_j$ in image 2:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \text{NCC}(d_i, d_j) = \frac{d_i \cdot d_j}{\|d_i\| \|d_j\|} = \frac{\sum_{k=1}^{64} d_i[k] \cdot d_j[k]}{\sqrt{\sum_{k=1}^{64} d_i[k]^2} \sqrt{\sum_{k=1}^{64} d_j[k]^2}}
+                $$
+            </p>
+        </div>
+
+        <p>
+            Since the descriptors are normalized (zero mean, unit variance), this simplifies to:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \text{NCC}(d_i, d_j) = d_i \cdot d_j
+                $$
+            </p>
+        </div>
+
+        <p>
+            For each feature $d_i$, I find the two best matches $d_{j_1}$ and $d_{j_2}$ with the highest 
+            NCC scores. Lowe's ratio test then filters matches based on:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \text{ratio} = \frac{\text{NCC}(d_i, d_{j_2})}{\text{NCC}(d_i, d_{j_1})} = \frac{d_i \cdot d_{j_2}}{d_i \cdot d_{j_1}}
+                $$
+            </p>
+        </div>
+
+        <p>
+            A match is accepted only if $\text{ratio} < \tau$, where $\tau$ is typically 0.7-0.8. 
+            This ensures that the best match is significantly better than the second-best match.
+        </p>
+
         <div class="algorithm-box">
             <p><strong>Feature Matching Algorithm:</strong></p>
             <ul>
-                <li>Compute normalized cross-correlation between all feature pairs</li>
+                <li>Compute normalized cross-correlation: $\text{NCC}(d_i, d_j) = d_i \cdot d_j$</li>
                 <li>Find nearest and second-nearest neighbors for each feature</li>
-                <li>Apply Lowe's ratio test: ratio = distance₁/distance₂</li>
-                <li>Accept matches where ratio < threshold (typically 0.7-0.8)</li>
+                <li>Apply Lowe's ratio test: $\text{ratio} = \frac{d_i \cdot d_{j_2}}{d_i \cdot d_{j_1}}$</li>
+                <li>Accept matches where $\text{ratio} < \tau$ (typically $\tau = 0.7$)</li>
             </ul>
         </div>
 
@@ -1102,14 +1242,59 @@
             in feature matches and ensuring reliable homography computation.
         </p>
 
+        <h4>Mathematical Formulation</h4>
+        <p>
+            RANSAC iteratively estimates the homography by randomly sampling minimal point sets and 
+            evaluating the quality of the resulting model. For each iteration:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \text{Error}(p_i, p'_i, H) = \|p'_i - H p_i\|_2
+                $$
+            </p>
+        </div>
+
+        <p>
+            where $p_i$ and $p'_i$ are corresponding points, and $H$ is the homography matrix. 
+            A point is considered an inlier if its error is below a threshold $\epsilon$:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                \text{inlier} \Leftrightarrow \|p'_i - H p_i\|_2 < \epsilon
+                $$
+            </p>
+        </div>
+
+        <p>
+            The algorithm runs for $N$ iterations, where $N$ is computed based on the expected 
+            outlier ratio and desired confidence:
+        </p>
+
+        <div class="equation">
+            <p>
+                $$
+                N = \frac{\log(1 - p)}{\log(1 - (1 - \epsilon)^s)}
+                $$
+            </p>
+        </div>
+
+        <p>
+            where $p$ is the desired confidence (e.g., 0.99), $\epsilon$ is the outlier ratio, 
+            and $s$ is the minimum number of points needed to fit the model (4 for homography).
+        </p>
+
         <div class="algorithm-box">
             <p><strong>4-Point RANSAC Algorithm:</strong></p>
             <ul>
                 <li>Randomly sample 4 point correspondences</li>
-                <li>Compute homography H from the 4 points</li>
-                <li>Count inliers using geometric error threshold</li>
-                <li>Repeat for N iterations, keeping best H</li>
-                <li>Refine H using all inliers with least squares</li>
+                <li>Compute homography $H$ from the 4 points using least squares</li>
+                <li>Count inliers: $\|p'_i - H p_i\|_2 < \epsilon$</li>
+                <li>Repeat for $N$ iterations, keeping best $H$</li>
+                <li>Refine $H$ using all inliers with least squares</li>
             </ul>
         </div>
 
