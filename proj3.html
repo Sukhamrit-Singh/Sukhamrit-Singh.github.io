@@ -322,49 +322,70 @@
                     <a href="#overview" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
                         <span style="color: #404040;">├── </span>
                         <span style="color: #ffffff;">overview/</span>
-                        <span style="color: #606060; margin-left: 8px;">Image Warping and Mosaicing (proj3A)</span>
+                        <span style="color: #606060; margin-left: 8px;">Image Warping and Mosaicing</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#parta" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">├── </span>
+                        <span style="color: #ffffff;">partA/</span>
+                        <span style="color: #606060; margin-left: 8px;">Image Warping and Mosaicing</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#a1" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">├── </span>
+                        <span style="color: #404040;">│   ├── </span>
                         <span style="color: #ffffff;">A.1/</span>
                         <span style="color: #606060; margin-left: 8px;">Shoot and Digitize Pictures</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#a2" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">├── </span>
+                        <span style="color: #404040;">│   ├── </span>
                         <span style="color: #ffffff;">A.2/</span>
                         <span style="color: #606060; margin-left: 8px;">Recover Homographies</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#a3" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">├── </span>
+                        <span style="color: #404040;">│   ├── </span>
                         <span style="color: #ffffff;">A.3/</span>
                         <span style="color: #606060; margin-left: 8px;">Warp the Images</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#a4" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">└── </span>
+                        <span style="color: #404040;">│   └── </span>
                         <span style="color: #ffffff;">A.4/</span>
                         <span style="color: #606060; margin-left: 8px;">Blend into a Mosaic</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#partb" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">└── </span>
+                        <span style="color: #ffffff;">partB/</span>
+                        <span style="color: #606060; margin-left: 8px;">Feature Detection and Matching</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <h1 style="font-size: 2.5em; margin-bottom: 10px;">Creating Mosaics!</h1>
-        <div style="color: #808080; margin-bottom: 40px; font-size: 1em;">CS180 Project 3A (Part A): Image Warping and Mosaicing</div>
+        <h1 style="font-size: 2.5em; margin-bottom: 10px;">Image Warping and Mosaicing!</h1>
+        <div style="color: #808080; margin-bottom: 40px; font-size: 1em;">CS180 Project 3: Image Warping, Mosaicing, and Feature Detection</div>
 
         <h2 id="overview">Overview</h2>
         <p>
-            The goal of this assignment is to implement image warping and mosaicing: compute homographies from
-            point correspondences, perform inverse warping with nearest-neighbor and bilinear interpolation, and
-            blend multiple images into seamless mosaics. Below are the task descriptions and the deliverables I produced.
+            This project explores two fundamental computer vision techniques: image warping and mosaicing (Part A), 
+            and feature detection and matching (Part B). In Part A, we implement homography computation from point 
+            correspondences, perform inverse warping with nearest-neighbor and bilinear interpolation, and blend 
+            multiple images into seamless mosaics. In Part B, we develop automatic feature detection and matching 
+            algorithms to create mosaics without manual point selection.
         </p>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #40ff40;">
+            <h2 id="parta" style="margin: 0; color: #40ff40;">Part A: Image Warping and Mosaicing</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Manual point correspondence and homography-based image warping</div>
+        </div>
 
         <h2 id="a1">A.1: Shoot and Digitize Pictures</h2>
         <p>
@@ -939,6 +960,223 @@
                 <img src="proj3/sink/5_mosaic_bilinear.jpg" alt="sink source" style="width: 100%; height: auto;">
             </div>
             <div class="comparison-label">Bilinear Mosaic</div>
+        </div>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #4080ff;">
+            <h2 id="partb" style="margin: 0; color: #4080ff;">Part B: Feature Detection and Matching</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Automatic feature detection and matching for seamless mosaics</div>
+        </div>
+
+        <h3>B.1: Harris Corner Detection</h3>
+        <p>
+            I implemented the Harris corner detection algorithm following Section 2 of the Brown et al. paper. 
+            The Harris detector identifies corners by analyzing local intensity variations in multiple directions. 
+            I used a single-scale implementation without sub-pixel accuracy as specified in the assignment.
+        </p>
+
+        <div class="algorithm-box">
+            <p><strong>Harris Corner Detection Algorithm:</strong></p>
+            <ul>
+                <li>Compute image gradients I_x and I_y using Sobel operators</li>
+                <li>Build the structure tensor M for each pixel</li>
+                <li>Calculate the corner response R = det(M) - k(trace(M))²</li>
+                <li>Apply non-maximum suppression to find local maxima</li>
+                <li>Threshold the response to select strong corners</li>
+            </ul>
+        </div>
+
+        <h4>Harris Corners Detection Results</h4>
+        <p>Below are the detected Harris corners overlaid on the source images:</p>
+        
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part1/1_source_image.jpg" alt="Harris Corners Image 1">
+                </div>
+                <div class="comparison-label">Harris Corners - Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part1/2_source_image.jpg" alt="Harris Corners Image 2">
+                </div>
+                <div class="comparison-label">Harris Corners - Image 2</div>
+            </div>
+        </div>
+
+        <h4>Adaptive Non-Maximal Suppression (ANMS)</h4>
+        <p>
+            I implemented Adaptive Non-Maximal Suppression (ANMS) following Section 3 of the paper to ensure 
+            well-distributed corner points across the image. ANMS selects the strongest corners while maintaining 
+            a minimum distance between selected points.
+        </p>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part1/ANMS1_image.jpg" alt="ANMS Results 1">
+                </div>
+                <div class="comparison-label">ANMS Corners - Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part1/ANMS2_image.jpg" alt="ANMS Results 2">
+                </div>
+                <div class="comparison-label">ANMS Corners - Image 2</div>
+            </div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part1/ANMS_overlap_image.jpg" alt="ANMS Overlap" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">ANMS Corners Overlap Visualization</div>
+        </div>
+
+        <h3>B.2: Feature Descriptor Extraction</h3>
+        <p>
+            I implemented feature descriptor extraction following Section 4 of the Brown et al. paper. 
+            For each detected corner, I extracted axis-aligned 8x8 patches from a larger 40x40 window 
+            to create well-blurred descriptors. The descriptors are bias/gain-normalized for robust matching.
+        </p>
+
+        <div class="algorithm-box">
+            <p><strong>Feature Descriptor Extraction Process:</strong></p>
+            <ul>
+                <li>Extract 40x40 window around each corner point</li>
+                <li>Sample 8x8 patches from the larger window</li>
+                <li>Apply bias/gain normalization to descriptors</li>
+                <li>Create rotation-invariant feature vectors</li>
+            </ul>
+        </div>
+
+        <h4>Extracted Feature Descriptors</h4>
+        <p>Below are examples of the extracted normalized 8x8 feature descriptors:</p>
+        
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part2/img1_features_image.jpg" alt="Feature Descriptors Image 1">
+                </div>
+                <div class="comparison-label">Feature Descriptors - Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part2/img2_features_image.jpg" alt="Feature Descriptors Image 2">
+                </div>
+                <div class="comparison-label">Feature Descriptors - Image 2</div>
+            </div>
+        </div>
+
+        <h3>B.3: Feature Matching</h3>
+        <p>
+            I implemented feature matching following Section 5 of the paper. The matching process uses 
+            normalized cross-correlation to find similar feature descriptors between image pairs. I used 
+            Lowe's ratio test for thresholding, comparing the ratio between the first and second nearest 
+            neighbors to filter out ambiguous matches.
+        </p>
+
+        <div class="algorithm-box">
+            <p><strong>Feature Matching Algorithm:</strong></p>
+            <ul>
+                <li>Compute normalized cross-correlation between all feature pairs</li>
+                <li>Find nearest and second-nearest neighbors for each feature</li>
+                <li>Apply Lowe's ratio test: ratio = distance₁/distance₂</li>
+                <li>Accept matches where ratio < threshold (typically 0.7-0.8)</li>
+            </ul>
+        </div>
+
+        <h4>Feature Matching Results</h4>
+        <p>Below are the matched features between image pairs:</p>
+        
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part3/feature_matching_image.jpg" alt="Feature Matching Results" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Matched Features Between Image Pairs</div>
+        </div>
+
+        <h3>B.4: RANSAC for Robust Homography</h3>
+        <p>
+            I implemented 4-point RANSAC from scratch to compute robust homography estimates from 
+            the matched features. RANSAC (Random Sample Consensus) is essential for handling outliers 
+            in feature matches and ensuring reliable homography computation.
+        </p>
+
+        <div class="algorithm-box">
+            <p><strong>4-Point RANSAC Algorithm:</strong></p>
+            <ul>
+                <li>Randomly sample 4 point correspondences</li>
+                <li>Compute homography H from the 4 points</li>
+                <li>Count inliers using geometric error threshold</li>
+                <li>Repeat for N iterations, keeping best H</li>
+                <li>Refine H using all inliers with least squares</li>
+            </ul>
+        </div>
+
+        <h4>RANSAC Results</h4>
+        <p>Below are the RANSAC results showing robust homography computation:</p>
+        
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part4/chair_RANSAC_image.jpg" alt="Chair RANSAC Results">
+                </div>
+                <div class="comparison-label">Chair Scene - RANSAC Results</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part4/sink_RANSAC_image.jpg" alt="Sink RANSAC Results">
+                </div>
+                <div class="comparison-label">Sink Scene - RANSAC Results</div>
+            </div>
+        </div>
+
+        <h4>Automatic Mosaic Creation</h4>
+        <p>
+            Using the automatically detected and matched features with RANSAC, I created mosaics 
+            without manual point selection. The system computes homographies from the matched features 
+            and applies the same warping and blending techniques from Part A.
+        </p>
+
+        <h4>Comparison: Manual vs Automatic Stitching</h4>
+        <p>Below are comparisons between manually stitched mosaics (from Part A) and automatically stitched mosaics (from Part B):</p>
+        
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part4/sink_mosaic_image.jpg" alt="Sink Automatic Mosaic" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Sink Scene - Automatic Mosaic</div>
+        </div>
+
+        <h4>Additional Automatic Mosaics</h4>
+        <p>Below are additional automatic mosaics created using the feature detection and matching pipeline:</p>
+        
+        <div class="image-grid">
+            <div class="image-wrapper">
+                <div class="image-container">
+                    <img src="proj3/partB/other_images/chair_mosaic_image.jpg" alt="Chair Automatic Mosaic">
+                </div>
+                <div class="image-caption">Chair Scene - Automatic Mosaic</div>
+            </div>
+            <div class="image-wrapper">
+                <div class="image-container">
+                    <img src="proj3/partB/other_images/dt_mosaic_image.jpg" alt="Downtown Automatic Mosaic">
+                </div>
+                <div class="image-caption">Downtown Scene - Automatic Mosaic</div>
+            </div>
+            <div class="image-wrapper">
+                <div class="image-container">
+                    <img src="proj3/partB/other_images/scene_mosaic_image.jpg" alt="Scene Automatic Mosaic">
+                </div>
+                <div class="image-caption">General Scene - Automatic Mosaic</div>
+            </div>
+        </div>
+
+        <div class="highlight">
+            <p><strong>Key Results:</strong> The automatic feature detection and matching pipeline successfully 
+            creates high-quality mosaics comparable to manual stitching. RANSAC effectively handles outliers 
+            in feature matches, ensuring robust homography computation. The system demonstrates the power 
+            of automated computer vision techniques for image stitching applications.</p>
         </div>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
