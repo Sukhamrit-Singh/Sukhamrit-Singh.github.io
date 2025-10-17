@@ -722,7 +722,6 @@
 
             <!-- Right: Equation Explanation -->
             <div style="flex: 1.2; min-width: 340px; display: flex; flex-direction: column; justify-content: center;">
-                <h4 style="color: #ffffff; margin-bottom: 12px; text-align: center;">Mathematical Formulation</h4>
 
                 <div class="equation" style="text-align: center;">
                     <p>
@@ -1008,7 +1007,6 @@
             large intensity changes in multiple directions, unlike edges (one direction) or flat regions (minimal changes).
         </p>
 
-        <h4>Mathematical Foundation</h4>
         <p>
             We build the structure tensor $M$ by accumulating gradient information over a local window:
         </p>
@@ -1126,81 +1124,35 @@
             <div class="comparison-label">ANMS Corners Overlap Visualization</div>
         </div>
 
-        <h3 id="b2">B.2: Feature Descriptor Extraction</h3>
+        <h2 id="b2">B.2: Feature Descriptor Extraction</h2>
         <p>
-            I implemented feature descriptor extraction following Section 4 of the Brown et al. paper. 
-            For each detected corner, I extracted axis-aligned 8x8 patches from a larger 40x40 window 
-            to create well-blurred descriptors. The descriptors are bias/gain-normalized for robust matching.
+            In this part I extracted the features of the detected corners by taking 40x40 window around 
+            the corner coordinates, and then choosing every 5th pixel to get 8x8. The process involved:
         </p>
 
-        <h4>Mathematical Formulation</h4>
         <p>
-            For each corner point $(x_c, y_c)$, I extract a 40×40 window $W$ centered at the corner. 
-            From this window, I sample an 8×8 descriptor patch $D$ by taking every 5th pixel:
+            For each corner, I Gaussian blurred the 40×40 patch, then I did the 5 skip thing to get the 8×8 descriptor, 
+            then I found the mean and standard deviation to normalize the descriptor.
         </p>
-
-        <div class="equation">
-            <p>
-                $$
-                D[i,j] = W[5i + x_c - 20, 5j + y_c - 20], \quad i,j \in \{0,1,\ldots,7\}
-                $$
-            </p>
-        </div>
-
-        <p>
-            The descriptor is then bias/gain-normalized to make it robust to illumination changes:
-        </p>
-
-        <div class="equation">
-            <p>
-                $$
-                \mu = \frac{1}{64}\sum_{i=0}^{7}\sum_{j=0}^{7} D[i,j], \quad \sigma = \sqrt{\frac{1}{64}\sum_{i=0}^{7}\sum_{j=0}^{7} (D[i,j] - \mu)^2}
-                $$
-            </p>
-        </div>
-
-        <div class="equation">
-            <p>
-                $$
-                D_{\text{norm}}[i,j] = \frac{D[i,j] - \mu}{\sigma}
-                $$
-            </p>
-        </div>
-
-        <p>
-            This normalization ensures that the descriptor has zero mean and unit variance, making it 
-            invariant to linear illumination changes.
-        </p>
-
-        <div class="algorithm-box">
-            <p><strong>Feature Descriptor Extraction Process:</strong></p>
-            <ul>
-                <li>Extract 40×40 window around each corner point</li>
-                <li>Sample 8×8 patches from the larger window (every 5th pixel)</li>
-                <li>Apply bias/gain normalization: $\mu = 0$, $\sigma = 1$</li>
-                <li>Create 64-dimensional feature vectors</li>
-            </ul>
-        </div>
 
         <h4>Extracted Feature Descriptors</h4>
         <p>Below are examples of the extracted normalized 8x8 feature descriptors:</p>
         
-        <div class="comparison">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/partB/part2/img1_features_image.jpg" alt="Feature Descriptors Image 1">
-                </div>
-                <div class="comparison-label">Feature Descriptors - Image 1</div>
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part2/img1_features_image.jpg" alt="Feature Descriptors Image 1" style="width: 100%; height: auto;">
             </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/partB/part2/img2_features_image.jpg" alt="Feature Descriptors Image 2">
-                </div>
-                <div class="comparison-label">Feature Descriptors - Image 2</div>
-            </div>
+            <div class="comparison-label">Feature Descriptors - Image 1</div>
         </div>
 
-        <h3 id="b3">B.3: Feature Matching</h3>
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part2/img2_features_image.jpg" alt="Feature Descriptors Image 2" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Feature Descriptors - Image 2</div>
+        </div>
+
+        <h2 id="b3">B.3: Feature Matching</h2>
         <p>
             I implemented feature matching following Section 5 of the paper. The matching process uses 
             normalized cross-correlation to find similar feature descriptors between image pairs. I used 
@@ -1208,59 +1160,33 @@
             neighbors to filter out ambiguous matches.
         </p>
 
-        <h4>Mathematical Formulation</h4>
         <p>
-            For each feature descriptor $d_i$ in image 1, I compute the normalized cross-correlation with 
-            all descriptors $d_j$ in image 2:
+            For each feature descriptor in image 1, I computed the Euclidean distance to all descriptors in image 2:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                \text{NCC}(d_i, d_j) = \frac{d_i \cdot d_j}{\|d_i\| \|d_j\|} = \frac{\sum_{k=1}^{64} d_i[k] \cdot d_j[k]}{\sqrt{\sum_{k=1}^{64} d_i[k]^2} \sqrt{\sum_{k=1}^{64} d_j[k]^2}}
+                d = \|f_2 - f_1\|_2
                 $$
             </p>
         </div>
 
         <p>
-            Since the descriptors are normalized (zero mean, unit variance), this simplifies to:
+            I found the best and second-best matches, then applied Lowe's ratio test:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                \text{NCC}(d_i, d_j) = d_i \cdot d_j
+                \text{ratio} = \frac{d_{\text{best}}}{d_{\text{second}}}
                 $$
             </p>
         </div>
 
         <p>
-            For each feature $d_i$, I find the two best matches $d_{j_1}$ and $d_{j_2}$ with the highest 
-            NCC scores. Lowe's ratio test then filters matches based on:
+            If this ratio was less than 0.7, I accepted the match.
         </p>
-
-        <div class="equation">
-            <p>
-                $$
-                \text{ratio} = \frac{\text{NCC}(d_i, d_{j_2})}{\text{NCC}(d_i, d_{j_1})} = \frac{d_i \cdot d_{j_2}}{d_i \cdot d_{j_1}}
-                $$
-            </p>
-        </div>
-
-        <p>
-            A match is accepted only if $\text{ratio} < \tau$, where $\tau$ is typically 0.7-0.8. 
-            This ensures that the best match is significantly better than the second-best match.
-        </p>
-
-        <div class="algorithm-box">
-            <p><strong>Feature Matching Algorithm:</strong></p>
-            <ul>
-                <li>Compute normalized cross-correlation: $\text{NCC}(d_i, d_j) = d_i \cdot d_j$</li>
-                <li>Find nearest and second-nearest neighbors for each feature</li>
-                <li>Apply Lowe's ratio test: $\text{ratio} = \frac{d_i \cdot d_{j_2}}{d_i \cdot d_{j_1}}$</li>
-                <li>Accept matches where $\text{ratio} < \tau$ (typically $\tau = 0.7$)</li>
-            </ul>
-        </div>
 
         <h4>Feature Matching Results</h4>
         <p>Below are the matched features between image pairs:</p>
@@ -1272,85 +1198,54 @@
             <div class="comparison-label">Matched Features Between Image Pairs</div>
         </div>
 
-        <h3 id="b4">B.4: RANSAC for Robust Homography</h3>
+        <h2 id="b4">B.4: RANSAC for Robust Homography</h2>
         <p>
-            I implemented 4-point RANSAC from scratch to compute robust homography estimates from 
+            I implemented 4-point RANSAC to compute robust homography estimates from 
             the matched features. RANSAC (Random Sample Consensus) is essential for handling outliers 
             in feature matches and ensuring reliable homography computation.
         </p>
 
-        <h4>Mathematical Formulation</h4>
         <p>
-            RANSAC iteratively estimates the homography by randomly sampling minimal point sets and 
-            evaluating the quality of the resulting model. For each iteration:
+            RANSAC follows this iterative process to find the best homography:
+        </p>
+
+        <p>
+            For each iteration, I get 4 random points from the matched features, then compute the homography 
+            from these 4 points. Next, I apply this homography to all points in the first image to project 
+            them onto the second image. I then compute the Euclidean distance between the projected points 
+            and the actual corresponding points in the second image:
         </p>
 
         <div class="equation">
             <p>
                 $$
-                \text{Error}(p_i, p'_i, H) = \|p'_i - H p_i\|_2
+                \text{distance} = \|\text{projected} - \text{pts2}\|_2
                 $$
             </p>
         </div>
 
         <p>
-            where $p_i$ and $p'_i$ are corresponding points, and $H$ is the homography matrix. 
-            A point is considered an inlier if its error is below a threshold $\epsilon$:
+            Points with distance less than $\epsilon = 3.0$ are considered inliers. I count the total number 
+            of inliers and compare it to the best inlier count so far. If this iteration has more inliers, 
+            I store this as the best homography. After $N = 1000$ iterations, I recompute the final homography 
+            using all inlier points from the best iteration.
         </p>
-
-        <div class="equation">
-            <p>
-                $$
-                \text{inlier} \Leftrightarrow \|p'_i - H p_i\|_2 < \epsilon
-                $$
-            </p>
-        </div>
-
-        <p>
-            The algorithm runs for $N$ iterations, where $N$ is computed based on the expected 
-            outlier ratio and desired confidence:
-        </p>
-
-        <div class="equation">
-            <p>
-                $$
-                N = \frac{\log(1 - p)}{\log(1 - (1 - \epsilon)^s)}
-                $$
-            </p>
-        </div>
-
-        <p>
-            where $p$ is the desired confidence (e.g., 0.99), $\epsilon$ is the outlier ratio, 
-            and $s$ is the minimum number of points needed to fit the model (4 for homography).
-        </p>
-
-        <div class="algorithm-box">
-            <p><strong>4-Point RANSAC Algorithm:</strong></p>
-            <ul>
-                <li>Randomly sample 4 point correspondences</li>
-                <li>Compute homography $H$ from the 4 points using least squares</li>
-                <li>Count inliers: $\|p'_i - H p_i\|_2 < \epsilon$</li>
-                <li>Repeat for $N$ iterations, keeping best $H$</li>
-                <li>Refine $H$ using all inliers with least squares</li>
-            </ul>
-        </div>
 
         <h4>RANSAC Results</h4>
         <p>Below are the RANSAC results showing robust homography computation:</p>
         
-        <div class="comparison">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/partB/part4/chair_RANSAC_image.jpg" alt="Chair RANSAC Results">
-                </div>
-                <div class="comparison-label">Chair Scene - RANSAC Results</div>
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part4/sink_RANSAC_image.jpg" alt="Sink RANSAC Results" style="width: 100%; height: auto;">
             </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/partB/part4/sink_RANSAC_image.jpg" alt="Sink RANSAC Results">
-                </div>
-                <div class="comparison-label">Sink Scene - RANSAC Results</div>
+            <div class="comparison-label">Sink Scene - RANSAC Results</div>
+        </div>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part4/dt_RANSAC_image.jpg" alt="Downtown RANSAC Results" style="width: 100%; height: auto;">
             </div>
+            <div class="comparison-label">Downtown Scene - RANSAC Results</div>
         </div>
 
         <h4>Automatic Mosaic Creation</h4>
@@ -1359,9 +1254,6 @@
             without manual point selection. The system computes homographies from the matched features 
             and applies the same warping and blending techniques from Part A.
         </p>
-
-        <h4>Comparison: Manual vs Automatic Stitching</h4>
-        <p>Below are comparisons between manually stitched mosaics (from Part A) and automatically stitched mosaics (from Part B):</p>
         
         <div style="width: 70vw; margin: 0 auto; text-align: center;">
             <div class="image-container">
@@ -1370,27 +1262,51 @@
             <div class="comparison-label">Sink Scene - Automatic Mosaic</div>
         </div>
 
-        <h4>Additional Automatic Mosaics</h4>
-        <p>Below are additional automatic mosaics created using the feature detection and matching pipeline:</p>
+        <h4>Comparison: Manual vs Automatic Stitching</h4>
+        <p>Below are comparisons between manually stitched mosaics (from Part A) and automatically stitched mosaics (from Part B):</p>
         
-        <div class="image-grid">
-            <div class="image-wrapper">
+        <div class="comparison">
+            <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj3/partB/other_images/chair_mosaic_image.jpg" alt="Chair Automatic Mosaic">
+                    <img src="proj3/sink/5_mosaic_bilinear.jpg" alt="Sink Manual Mosaic">
                 </div>
-                <div class="image-caption">Chair Scene - Automatic Mosaic</div>
+                <div class="comparison-label">Sink Scene - Manual Mosaic (Part A)</div>
             </div>
-            <div class="image-wrapper">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/part4/sink_mosaic_image.jpg" alt="Sink Automatic Mosaic">
+                </div>
+                <div class="comparison-label">Sink Scene - Automatic Mosaic (Part B)</div>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/downtown/5_mosaic_bilinear.jpg" alt="Downtown Manual Mosaic">
+                </div>
+                <div class="comparison-label">Downtown Scene - Manual Mosaic (Part A)</div>
+            </div>
+            <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj3/partB/other_images/dt_mosaic_image.jpg" alt="Downtown Automatic Mosaic">
                 </div>
-                <div class="image-caption">Downtown Scene - Automatic Mosaic</div>
+                <div class="comparison-label">Downtown Scene - Automatic Mosaic (Part B)</div>
             </div>
-            <div class="image-wrapper">
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/bay/5_mosaic_bilinear.jpg" alt="Bay Manual Mosaic">
+                </div>
+                <div class="comparison-label">Bay Scene - Manual Mosaic (Part A)</div>
+            </div>
+            <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj3/partB/other_images/scene_mosaic_image.jpg" alt="Scene Automatic Mosaic">
                 </div>
-                <div class="image-caption">General Scene - Automatic Mosaic</div>
+                <div class="comparison-label">Bay Scene - Automatic Mosaic (Part B)</div>
             </div>
         </div>
 
@@ -1427,11 +1343,22 @@
             <li><strong>Results:</strong> Created automatic mosaics comparable in quality to manual stitching</li>
         </ul>
 
-        <div style="text-align: center; margin: 40px 0;">
-            <a href="#overview" style="color: #4080ff; text-decoration: none; font-size: 1.1em; padding: 12px 24px; border: 1px solid #4080ff; border-radius: 4px; transition: all 0.3s ease; display: inline-block;">
-                ↑ Back to Overview
-            </a>
+        <h3>Final Comparison: Chair Scene</h3>
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/chairs/5_mosaic_bilinear.jpg" alt="Chair Manual Mosaic">
+                </div>
+                <div class="comparison-label">Chair Scene - Manual Mosaic (Part A)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/other_images/chair_mosaic_image.jpg" alt="Chair Automatic Mosaic">
+                </div>
+                <div class="comparison-label">Chair Scene - Automatic Mosaic (Part B)</div>
+            </div>
         </div>
+
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
             © 2025 Sukhamrit Singh. All rights reserved.
@@ -1439,3 +1366,4 @@
         </div>
     </body>
     </html>
+
