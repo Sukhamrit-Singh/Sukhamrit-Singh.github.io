@@ -1126,13 +1126,9 @@
 
         <h2 id="b2">B.2: Feature Descriptor Extraction</h2>
         <p>
-            In this part I extracted the features of the detected corners by taking 40x40 window around 
-            the corner coordinates, and then choosing every 5th pixel to get 8x8. The process involved:
-        </p>
-
-        <p>
-            For each corner, I Gaussian blurred the 40×40 patch, then I did the 5 skip thing to get the 8×8 descriptor, 
-            then I found the mean and standard deviation to normalize the descriptor.
+            In this part I extracted the features of the detected corners by taking a 40×40 window around 
+            the corner coordinates. For each corner, I applied Gaussian blur to the 40×40 patch, then sampled every 5th pixel to create the 8×8 descriptor, 
+            and finally computed the mean and standard deviation to normalize the descriptor.
         </p>
 
         <h4>Extracted Feature Descriptors</h4>
@@ -1310,11 +1306,34 @@
             </div>
         </div>
 
-        <div class="highlight">
-            <p><strong>Key Results:</strong> The automatic feature detection and matching pipeline successfully 
-            creates high-quality mosaics comparable to manual stitching. RANSAC effectively handles outliers 
-            in feature matches, ensuring robust homography computation. The system demonstrates the power 
-            of automated computer vision techniques for image stitching applications.</p>
+        <p>
+            I learned that many of the hyperparameters had to be fine-tuned for each unique mosaic. That is because the automatic corner detection sometimes detects corners too close to each other, which means the alignment is not very diverse. Unlike the manual approach where I selected points diversely across the image, the automatic system can cluster features in certain regions.
+        </p>
+
+        <p>
+            Therefore, I had to adjust the Harris corner detection <code>min_distance</code> to be wider for some images, and the RANSAC <code>epsilon</code> sometimes also needed to be greater. An example where the pictures didn't work well for automatic stitching was the chair scene, as shown below. Sometimes, even after fine-tuning the hyperparameters, it did not align well. That is because there actually are not enough diverse corners shown in both images. All the diverse corners get filtered out by the algorithm, leaving only corners that are too similar or clustered in certain regions, which doesn't provide enough geometric diversity for robust homography estimation.
+        </p>
+
+        <div style="width: 70vw; margin: 0 auto; text-align: center;">
+            <div class="image-container">
+                <img src="proj3/partB/part4/chair_RANSAC_image.jpg" alt="Chair RANSAC Results" style="width: 100%; height: auto;">
+            </div>
+            <div class="comparison-label">Chair Scene - RANSAC Results (Challenging Feature Matching)</div>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/chairs/5_mosaic_bilinear.jpg" alt="Chair Manual Mosaic">
+                </div>
+                <div class="comparison-label">Chair Scene - Manual Mosaic (Good)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj3/partB/other_images/chair_mosaic_image.jpg" alt="Chair Automatic Mosaic">
+                </div>
+                <div class="comparison-label">Chair Scene - Automatic Mosaic (Challenging)</div>
+            </div>
         </div>
 
         <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 30px; margin: 60px -20px 40px; border-left: 3px solid #ff8040;">
@@ -1342,23 +1361,6 @@
             <li><strong>RANSAC Homography:</strong> Computed robust homographies using 4-point RANSAC to handle outliers</li>
             <li><strong>Results:</strong> Created automatic mosaics comparable in quality to manual stitching</li>
         </ul>
-
-        <h3>Final Comparison: Chair Scene</h3>
-        <div class="comparison">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/chairs/5_mosaic_bilinear.jpg" alt="Chair Manual Mosaic">
-                </div>
-                <div class="comparison-label">Chair Scene - Manual Mosaic (Part A)</div>
-            </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj3/partB/other_images/chair_mosaic_image.jpg" alt="Chair Automatic Mosaic">
-                </div>
-                <div class="comparison-label">Chair Scene - Automatic Mosaic (Part B)</div>
-            </div>
-        </div>
-
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
             © 2025 Sukhamrit Singh. All rights reserved.
