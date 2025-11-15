@@ -556,16 +556,9 @@
                 </div>
                 <div style="margin: 8px 0;">
                     <a href="#part2_6" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">├── </span>
+                        <span style="color: #404040;">└── </span>
                         <span style="color: #ffffff;">part2.6/</span>
                         <span style="color: #606060; margin-left: 8px;">Own Data NeRF</span>
-                    </a>
-                </div>
-                <div style="margin: 8px 0;">
-                    <a href="#summary" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
-                        <span style="color: #404040;">└── </span>
-                        <span style="color: #ffffff;">summary/</span>
-                        <span style="color: #606060; margin-left: 8px;">Project Summary and Results</span>
                     </a>
                 </div>
             </div>
@@ -577,8 +570,8 @@
         <h2 id="overview">Overview</h2>
         <p>
             This project explores Neural Radiance Fields (NeRF), a cutting-edge technique for 3D scene representation 
-            and novel view synthesis. We implement neural networks that learn implicit representations of 3D scenes 
-            from multi-view images, enabling photorealistic novel view synthesis. The project spans from 2D neural 
+            and view synthesis. We implement neural networks that learn implicit representations of 3D scenes 
+            from multi-view images, enabling photorealistic view synthesis. The project spans from 2D neural 
             fields to full 3D NeRF implementation, including camera calibration, volume rendering, and training on 
             both synthetic and real-world data.
         </p>
@@ -708,7 +701,7 @@
                 <div class="image-container">
                     <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_2999.png" alt="Fox Epoch 2999">
                 </div>
-                <div class="comparison-label">Final (Epoch 2999)</div>
+                <div class="comparison-label">Epoch 2999</div>
             </div>
         </div>
 
@@ -757,7 +750,7 @@
                 <div class="image-container">
                     <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_2999.png" alt="Messi Epoch 2999">
                 </div>
-                <div class="comparison-label">Final (Epoch 2999)</div>
+                <div class="comparison-label">Epoch 2999</div>
             </div>
         </div>
 
@@ -869,7 +862,7 @@
 
         <h3>Part 2.4: Neural Radiance Field</h3>
         <p>
-            I built an 8-layer MLP that takes positionally-encoded 3D coordinates ($L=10$) and view directions ($L=4$) as input. The network uses skip connections at layer 5 and has separate heads for density prediction (with ReLU) and view-dependent color prediction (with Sigmoid). This architecture allows the model to capture both geometric structure and view-dependent appearance effects like specular highlights.
+            I built an 8-layer MLP that takes positionally-encoded 3D coordinates ($L=10$) and view directions ($L=4$) as input. The network uses skip connections at layer 5 and has separate heads for density prediction (with ReLU) and view-dependent color prediction (with Sigmoid). There's also a skip connection for the RGB branch where the view directions ($\mathbf{r}_d$) are concatenated at the second RGB fully connected layer. This architecture allows the model to capture both geometric structure and view-dependent appearance effects.
         </p>
 
         <h3>3D Neural Radiance Field Architecture</h3>
@@ -878,13 +871,14 @@
             <img src="proj4/3d_nn_design.png" alt="3D Neural Radiance Field Architecture" style="width: 100%; height: auto; border-radius: 4px;">
         </div>
 
+
         <h3>Part 2.5: Volume Rendering</h3>
         <p>
             I implemented the discrete volume rendering equation to composite colors and densities along rays into final pixel colors: $C(\mathbf{r}) = \sum_{i=1}^{N} T_i \alpha_i \mathbf{c}_i$. The function computes alpha values $\alpha_i = 1 - \exp(-\sigma_i \delta_i)$ and transmittance $T_i = \exp(-\sum_{j=1}^{i-1} \sigma_j \delta_j)$ using cumulative sums for proper alpha compositing. My implementation passed the provided torch.allclose() test, ensuring correct mathematical computation of the rendering integral.
         </p>
 
         <h3>Training Progression</h3>
-        <p>Training progression showing the NeRF learning to represent the Lego scene:</p>
+        <p>Training progression showing the NeRF learning to represent the Lego scene. The model was trained for 2000 epochs using Adam optimizer with learning rate $5 \times 10^{-4}$, sampling 10,000 rays per iteration and 64 points per ray. Near and far planes were set to $z_{\text{near}}=2.0$ and $z_{\text{far}}=6.0$ respectively. The network uses positional encoding with $L=10$ frequencies for 3D coordinates and $L=4$ frequencies for view directions, with 256 hidden units per layer.</p>
 
         <div class="training-progression">
             <div class="comparison-item">
@@ -924,29 +918,21 @@
                 <div class="image-container">
                     <img src="proj4/part2_content/training_progression/lego_final_render.png" alt="Final">
                 </div>
-                <div class="comparison-label">Final Result</div>
+                <div class="comparison-label">Final Result (2000 Epochs)</div>
             </div>
         </div>
 
         <h3>Training Metrics</h3>
-        <div style="width: 60%; margin: 0 auto; text-align: center;">
+        <div style="text-align: center; margin: 40px 0;">
             <div class="image-container">
                 <img src="proj4/part2_content/lego_loss_psnr.png" alt="Lego Training Curve">
             </div>
             <div class="comparison-label">Training Loss and PSNR Curve</div>
         </div>
 
-        <div class="psnr-info">
-            <h4>Performance Results:</h4>
-            <p>
-                The final model achieved <strong>25.2 dB PSNR</strong> on the validation set after 1000 training iterations 
-                with a batch size of 10k rays. Training used Adam optimizer with learning rate $5 \times 10^{-4}$. The model successfully 
-                learns to represent the complex geometry and appearance of the Lego scene.
-            </p>
-        </div>
 
-        <h3>Novel View Synthesis</h3>
-        <p>Spherical rendering showing novel views of the Lego scene:</p>
+        <h3>Spherical Rendering</h3>
+        <p>Spherical rendering of the Lego scene:</p>
 
         <div class="video-container">
             <video width="600" loop autoplay muted>
@@ -955,44 +941,11 @@
             </video>
         </div>
         <div style="text-align: center; color: #808080; margin-top: 10px;">
-            Lego NeRF - Spherical Novel View Rendering
+            Lego NeRF - Spherical Rendering
         </div>
 
-        <h3>Volume Rendering Implementation</h3>
-        <div class="algorithm-box">
-            <h4>Discrete Volume Rendering Equation:</h4>
-            <div class="equation">
-                $$C(\mathbf{r}) = \sum_{i=1}^{N} T_i \alpha_i \mathbf{c}_i$$
-                $$\text{where } T_i = \exp\left(-\sum_{j=1}^{i-1} \sigma_j \delta_j\right), \quad \alpha_i = 1 - \exp(-\sigma_i \delta_i)$$
-            </div>
-            <ul>
-                <li><strong>Alpha Values:</strong> $\alpha_i = 1 - \exp(-\sigma_i \cdot \delta_i)$ for absorption probability</li>
-                <li><strong>Transmittance:</strong> $T_i$ computed using torch.cumsum() for ray termination probability</li>
-                <li><strong>Weight Calculation:</strong> $w_i = T_i \cdot \alpha_i$ for proper alpha compositing</li>
-                <li><strong>Final Color:</strong> Weighted sum $C(\mathbf{r}) = \sum_{i=1}^{N} w_i \mathbf{c}_i$</li>
-                <li><strong>Vectorization:</strong> Entire batch of 10k rays processed simultaneously for efficiency</li>
-                <li><strong>Step Size:</strong> $\delta_i = \frac{z_{\text{far}} - z_{\text{near}}}{N_{\text{samples}}}$ with 64 samples per ray</li>
-                <li><strong>Validation:</strong> Passed torch.allclose() test with reference implementation</li>
-            </ul>
-        </div>
 
-        <h3>Implementation Overview</h3>
-        <div class="algorithm-box">
-            <h4>Key Components Implemented:</h4>
-            <ul>
-                <li><strong>Camera-to-World Transform:</strong> Implemented `transform(c2w, x_c)` to convert camera coordinates to world space using 4x4 transformation matrices</li>
-                <li><strong>Pixel-to-Camera Conversion:</strong> `pixel_to_camera(K, uv, s)` converts 2D pixel coordinates to 3D camera coordinates using camera intrinsics</li>
-                <li><strong>Ray Generation:</strong> `pixel_to_ray(K, c2w, uv)` generates ray origins and normalized directions from pixel coordinates</li>
-                <li><strong>Point Sampling:</strong> `sample_along_rays(rays_o, rays_d, n_samples, near, far, perturb)` samples 64 points with explicit near/far bounds ($z_{\text{near}}=2.0$, $z_{\text{far}}=6.0$ for Lego)</li>
-                <li><strong>NeRF Network:</strong> 8-layer MLP with skip connections, predicting density (ReLU) and view-dependent RGB (sigmoid)</li>
-                <li><strong>Volume Rendering:</strong> Discrete alpha compositing using cumulative products for ray termination probability</li>
-            </ul>
-        </div>
-
-        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #ff8040;">
-            <h2 id="part2_6" style="margin: 0; color: #ff8040;">Part 2.6: Training NeRF on Own Data</h2>
-            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">NeRF trained on personally captured object</div>
-        </div>
+        <h3 id="part2_6">Part 2.6: Training NeRF on Own Data</h3>
 
         <p>
             Using the dataset I created in Part 0, I trained a NeRF on my own captured object. This involved 
@@ -1001,33 +954,19 @@
             synthetic Lego scene.
         </p>
 
-        <h3>Hyperparameter Adjustments for Real Data</h3>
+        <h3>Hyperparameters for Real Data</h3>
         <div class="algorithm-box">
-            <h4>Critical Changes from Synthetic to Real Data:</h4>
+            <h4>Training Configuration:</h4>
             <ul>
-                <li><strong>Near/Far Bounds:</strong> $z_{\text{near}}=0.02$, $z_{\text{far}}=0.5$ (vs $z_{\text{near}}=2.0$, $z_{\text{far}}=6.0$ for Lego) - adjusted for close-up object capture</li>
-                <li><strong>Camera Intrinsics:</strong> Used actual calibrated K matrix instead of synthetic focal length</li>
-                <li><strong>Samples per Ray:</strong> 64 samples (consistent) but denser due to smaller depth range</li>
-                <li><strong>Learning Rate:</strong> $5 \times 10^{-4}$ (maintained from Lego) but longer training needed</li>
-                <li><strong>Training Duration:</strong> 10,000 iterations (vs 2,000 for Lego) due to real-world complexity</li>
-                <li><strong>Image Preprocessing:</strong> Undistortion with cv2.getOptimalNewCameraMatrix() and ROI cropping</li>
-                <li><strong>Batch Size:</strong> 10k rays per iteration (maintained)</li>
-                <li><strong>Random Seed:</strong> Fixed seed=42 for reproducible results</li>
+                <li><strong>Near/Far Bounds:</strong> $z_{\text{near}}=0.02$, $z_{\text{far}}=0.5$ for close-up object capture</li>
+                <li><strong>Camera Intrinsics:</strong> Used actual calibrated K matrix from ArUco calibration</li>
+                <li><strong>Samples per Ray:</strong> 64 samples with denser sampling due to smaller depth range</li>
+                <li><strong>Learning Rate:</strong> $5 \times 10^{-4}$ with Adam optimizer</li>
+                <li><strong>Training Duration:</strong> 10,000 epochs for proper convergence</li>
+                <li><strong>Batch Size:</strong> 10,000 rays per iteration</li>
             </ul>
         </div>
 
-        <h3>Real Data Challenges Encountered</h3>
-        <div class="highlight">
-            <h4>Implementation Challenges:</h4>
-            <ul>
-                <li><strong>ArUco Detection:</strong> Required careful tag placement with white borders for consistent detection</li>
-                <li><strong>Camera Calibration:</strong> 30-50 calibration images needed with varied angles/distances</li>
-                <li><strong>Pose Estimation:</strong> solvePnP occasionally failed; implemented robust error handling</li>
-                <li><strong>Image Distortion:</strong> Real phone camera required undistortion + principal point adjustment</li>
-                <li><strong>Lighting Consistency:</strong> Captured images under uniform lighting to avoid brightness variations</li>
-                <li><strong>Motion Blur:</strong> Required stable capture technique to avoid blurry training images</li>
-            </ul>
-        </div>
 
         <h3>Training Progression</h3>
         <p>Training progression showing the NeRF learning to represent my captured object:</p>
@@ -1075,14 +1014,14 @@
         </div>
 
         <h3>Training Metrics</h3>
-        <div style="width: 60%; margin: 0 auto; text-align: center;">
+        <div style="text-align: center; margin: 40px 0;">
             <div class="image-container">
                 <img src="proj4/part2.6_content/vaja_psnr_loss.png" alt="Own Data Training Curve">
             </div>
             <div class="comparison-label">Training Loss and PSNR Curve for Own Data</div>
         </div>
 
-        <h3>Novel View Synthesis</h3>
+        <h3>Spherical Rendering</h3>
         <p>Circular orbit rendering of my captured object:</p>
 
         <div class="video-container">
@@ -1092,85 +1031,9 @@
             </video>
         </div>
         <div style="text-align: center; color: #808080; margin-top: 10px;">
-            Own Data NeRF - Circular Novel View Rendering
+            Own Data NeRF - Circular Rendering
         </div>
 
-        <h3>Challenges and Solutions</h3>
-        <div class="highlight">
-            <h4>Real Data Challenges:</h4>
-            <ul>
-                <li><strong>Lighting Variations:</strong> Real capture had slight lighting changes between views</li>
-                <li><strong>Motion Blur:</strong> Some images had minor blur requiring careful filtering</li>
-                <li><strong>Calibration Precision:</strong> ArUco detection required fine-tuning for consistent results</li>
-                <li><strong>Convergence Time:</strong> Real data required longer training compared to synthetic scenes</li>
-            </ul>
-            <h4>Solutions Applied:</h4>
-            <ul>
-                <li>Increased sampling density along rays for better detail capture</li>
-                <li>Adjusted near/far bounds based on actual scene depth</li>
-                <li>Used more conservative learning rates for stable training</li>
-                <li>Extended training iterations for proper convergence</li>
-            </ul>
-        </div>
-
-        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 30px; margin: 60px -20px 40px; border-left: 3px solid #ff8040;">
-            <h2 id="summary" style="margin: 0; color: #ff8040;">Project Summary</h2>
-            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Complete Neural Radiance Field implementation and results</div>
-        </div>
-
-        <p>
-            This project successfully implemented a complete Neural Radiance Field pipeline, from basic 2D neural 
-            fields to full 3D scene representation with novel view synthesis. The implementation demonstrates the 
-            power of neural implicit representations for computer vision and graphics applications.
-        </p>
-
-        <h3>Key Achievements</h3>
-        <ul>
-            <li><strong>Camera Calibration:</strong> Implemented ArUco-based calibration and pose estimation</li>
-            <li><strong>2D Neural Fields:</strong> Successfully fitted MLPs to represent 2D images with positional encoding</li>
-            <li><strong>3D NeRF Implementation:</strong> Built complete volume rendering pipeline with ray sampling</li>
-            <li><strong>Novel View Synthesis:</strong> Generated high-quality novel views of both synthetic and real scenes</li>
-            <li><strong>Real Data Training:</strong> Adapted NeRF to work with personally captured multi-view data</li>
-        </ul>
-
-        <h3>Technical Insights</h3>
-        <ul>
-            <li><strong>Positional Encoding:</strong> High-frequency encodings are crucial for capturing fine details</li>
-            <li><strong>Volume Rendering:</strong> Proper ray sampling and alpha compositing enable photorealistic synthesis</li>
-            <li><strong>Network Architecture:</strong> Skip connections and view-dependent coloring improve reconstruction quality</li>
-            <li><strong>Real vs Synthetic:</strong> Real data requires more careful preprocessing and longer training</li>
-        </ul>
-
-        <h3>Performance Results</h3>
-        <div class="psnr-info">
-            <h4>Quantitative Results Summary:</h4>
-            <ul>
-                <li><strong>Lego Scene (Synthetic):</strong> 25.2 dB PSNR after 2000 epochs, exceeded 23 dB PSNR target</li>
-                <li><strong>Own Data NeRF:</strong> Successful 10,000 epoch training with convergent loss curve</li>
-                <li><strong>2D Neural Fields (Messi):</strong> $\sim$24 dB PSNR final result with $L=10$, $W=256$</li>
-                <li><strong>Volume Rendering Verification:</strong> Passed torch.allclose() assertion test</li>
-                <li><strong>Camera Calibration:</strong> Successful pose estimation for 30+ images</li>
-                <li><strong>Novel View Videos:</strong> Generated 120-frame circular orbit videos at 30 FPS</li>
-            </ul>
-        </div>
-
-        <h3>Implementation Validation</h3>
-        <div class="algorithm-box">
-            <h4>Technical Verification:</h4>
-            <ul>
-                <li><strong>Volume Rendering Test:</strong> Implementation passed provided torch test with correct output values</li>
-                <li><strong>Ray Generation:</strong> Verified UV coordinate mapping with assertion: images_train[0, sample_uvs[:,1], sample_uvs[:,0]] == dataset.pixels</li>
-                <li><strong>Camera Transform:</strong> Verified inverse transform: x == transform(c2w.inv(), transform(c2w, x))</li>
-                <li><strong>Data Pipeline:</strong> Successfully processed 30+ images with ArUco pose estimation</li>
-                <li><strong>Training Convergence:</strong> Both synthetic and real data showed decreasing loss and increasing PSNR</li>
-            </ul>
-        </div>
-
-        <p>
-            The project demonstrates that neural radiance fields are a powerful tool for 3D scene representation, 
-            capable of generating photorealistic novel views from sparse multi-view input. The techniques learned 
-            here form the foundation for advanced 3D computer vision and graphics applications.
-        </p>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
             © 2025 Sukhamrit Singh. All rights reserved.
