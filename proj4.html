@@ -523,6 +523,34 @@
         mjx-math, mjx-math * {
             color: #ffffff !important;
         }
+
+        /* Print styles for PDF export */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .MathJax, .MathJax * {
+                color: black !important;
+            }
+            
+            mjx-math, mjx-math * {
+                color: black !important;
+            }
+            
+            h1, h2, h3, h4 {
+                color: black !important;
+            }
+            
+            p, li, div {
+                color: black !important;
+            }
+            
+            .comparison-label {
+                color: black !important;
+            }
+        }
     </style>
     <script>
         window.MathJax = {
