@@ -348,6 +348,166 @@
             flex-wrap: wrap;
             margin: 18px 0;
         }
+
+        .architecture-diagram {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .layer {
+            display: inline-block;
+            background: #2a2a2a;
+            border: 2px solid #404040;
+            border-radius: 6px;
+            padding: 15px 10px;
+            margin: 5px;
+            text-align: center;
+            min-width: 80px;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        .layer.input {
+            background: #1a4a1a;
+            border-color: #40ff40;
+            color: #40ff40;
+        }
+
+        .layer.hidden {
+            background: #1a1a4a;
+            border-color: #4080ff;
+            color: #4080ff;
+        }
+
+        .layer.output {
+            background: #4a1a1a;
+            border-color: #ff4040;
+            color: #ff4040;
+        }
+
+        .layer.pe {
+            background: #4a4a1a;
+            border-color: #ffff40;
+            color: #ffff40;
+        }
+
+        .layer.skip {
+            background: #4a1a4a;
+            border-color: #ff40ff;
+            color: #ff40ff;
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #808080;
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        .layer-label {
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .layer-dim {
+            font-size: 0.7em;
+            color: #c0c0c0;
+            margin-top: 3px;
+        }
+
+        .activation {
+            font-size: 0.6em;
+            color: #a0a0a0;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .architecture-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concat {
+            background: #2a4a2a;
+            border: 2px solid #60ff60;
+            color: #60ff60;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+
+        .nerf-architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .nerf-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .nerf-input-section {
+            border: 1px dashed #404040;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .skip-connection {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skip-arrow {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff40ff;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        /* Ensure MathJax renders in regular text color */
+        .MathJax, .MathJax * {
+            color: #ffffff !important;
+        }
+        
+        /* For inline math */
+        .MathJax_Display {
+            color: #ffffff !important;
+        }
+
+        /* For any green math text */
+        mjx-math, mjx-math * {
+            color: #ffffff !important;
+        }
     </style>
     <script>
         window.MathJax = {
@@ -434,14 +594,39 @@
             and using OpenCV's camera calibration to compute intrinsic parameters and distortion coefficients.
         </p>
 
+
         <p>
             After calibration, I captured images of my chosen object (a small figurine) alongside a single ArUco tag, 
             then used the calibrated camera parameters to estimate camera poses via solvePnP. The final step involved 
             undistorting images and packaging everything into a dataset format compatible with NeRF training.
         </p>
 
+        <h3>Sample Images from Data Capture</h3>
+        <p>Examples of captured images showing the object alongside the ArUco tag for pose estimation:</p>
+
+        <div class="training-progression">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part0_content/IMG_2311 Large.jpeg" alt="Sample Image 1">
+                </div>
+                <div class="comparison-label">Captured Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part0_content/IMG_2324 Large.jpeg" alt="Sample Image 2">
+                </div>
+                <div class="comparison-label">Captured Image 2</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part0_content/IMG_2346 Large.jpeg" alt="Sample Image 3">
+                </div>
+                <div class="comparison-label">Captured Image 3</div>
+            </div>
+        </div>
+
         <h3>Camera Frustum Visualizations</h3>
-        <p>Below are screenshots of the camera frustums visualization in Viser, showing the estimated camera poses:</p>
+        <p>Screenshots of the camera frustums visualization in Viser, showing the estimated camera poses:</p>
 
         <div class="comparison">
             <div class="comparison-item">
@@ -470,17 +655,23 @@
             by optimizing pixel-wise color predictions.
         </p>
 
-        <h3>Model Architecture</h3>
+        <h3>2D Neural Field Architecture</h3>
+        
+        <div style="text-align: center; margin: 30px auto; max-width: 75%;">
+            <img src="proj4/2d_nn_design.jpg" alt="2D Neural Field Architecture" style="width: 100%; height: auto; border-radius: 4px;">
+        </div>
+
         <div class="algorithm-box">
-            <h4>Network Details:</h4>
+            <h4>Network Architecture Details:</h4>
             <ul>
-                <li><strong>Input:</strong> 2D coordinates (x, y) with sinusoidal positional encoding</li>
-                <li><strong>Architecture:</strong> 4-layer MLP with ReLU activations</li>
+                <li><strong>Number of Layers:</strong> 4-layer MLP (3 hidden layers + output layer)</li>
                 <li><strong>Width:</strong> 256 hidden units per layer</li>
-                <li><strong>Output:</strong> RGB values with sigmoid activation</li>
-                <li><strong>Positional Encoding:</strong> L=10 frequency levels</li>
-                <li><strong>Learning Rate:</strong> 1e-2 with Adam optimizer</li>
-                <li><strong>Training:</strong> 3000 iterations with batch size of 10k pixels</li>
+                <li><strong>Input Dimension:</strong> $L \times 2 \times 2 + 2 = 42$ for $L=10$ positional encoding</li>
+                <li><strong>Output Dimension:</strong> 3 (RGB color values)</li>
+                <li><strong>Activation Functions:</strong> ReLU for hidden layers, Sigmoid for output</li>
+                <li><strong>Positional Encoding:</strong> Sinusoidal PE with $L=10$ frequency levels</li>
+                <li><strong>Learning Rate:</strong> $1 \times 10^{-2}$ with Adam optimizer</li>
+                <li><strong>Batch Size:</strong> 10,000 pixels sampled per epoch</li>
             </ul>
         </div>
 
@@ -491,33 +682,48 @@
         <div class="training-progression">
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/fox/epoch_0.png" alt="Fox Epoch 0">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_0.png" alt="Fox Epoch 0">
                 </div>
                 <div class="comparison-label">Epoch 0</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/fox/epoch_100.png" alt="Fox Epoch 100">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_100.png" alt="Fox Epoch 100">
                 </div>
                 <div class="comparison-label">Epoch 100</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/fox/epoch_400.png" alt="Fox Epoch 400">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_400.png" alt="Fox Epoch 400">
                 </div>
                 <div class="comparison-label">Epoch 400</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/fox/epoch_1600.png" alt="Fox Epoch 1600">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_1600.png" alt="Fox Epoch 1600">
                 </div>
                 <div class="comparison-label">Epoch 1600</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/fox/epoch_2999.png" alt="Fox Epoch 2999">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_2999.png" alt="Fox Epoch 2999">
                 </div>
                 <div class="comparison-label">Final (Epoch 2999)</div>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/part1_image.jpg" alt="Original Fox Image">
+                </div>
+                <div class="comparison-label">Original Fox Image</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/training_progressions/fox/reconstruction_epoch_2999.png" alt="Fox Final Reconstruction">
+                </div>
+                <div class="comparison-label">Neural Field Reconstruction</div>
             </div>
         </div>
 
@@ -525,33 +731,48 @@
         <div class="training-progression">
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/messi/epoch_0.png" alt="Messi Epoch 0">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_0.png" alt="Messi Epoch 0">
                 </div>
                 <div class="comparison-label">Epoch 0</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/messi/epoch_100.png" alt="Messi Epoch 100">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_100.png" alt="Messi Epoch 100">
                 </div>
                 <div class="comparison-label">Epoch 100</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/messi/epoch_400.png" alt="Messi Epoch 400">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_400.png" alt="Messi Epoch 400">
                 </div>
                 <div class="comparison-label">Epoch 400</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/messi/epoch_1600.png" alt="Messi Epoch 1600">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_1600.png" alt="Messi Epoch 1600">
                 </div>
                 <div class="comparison-label">Epoch 1600</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/training_progressions/messi/epoch_2999.png" alt="Messi Epoch 2999">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_2999.png" alt="Messi Epoch 2999">
                 </div>
                 <div class="comparison-label">Final (Epoch 2999)</div>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/messi.jpg" alt="Original Messi Image">
+                </div>
+                <div class="comparison-label">Original Messi Image</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/training_progressions/messi/reconstruction_epoch_2999.png" alt="Messi Final Reconstruction">
+                </div>
+                <div class="comparison-label">Neural Field Reconstruction</div>
             </div>
         </div>
 
@@ -563,32 +784,31 @@
                 <div class="image-container">
                     <img src="proj4/part1_content/final_results/reconstruction_L2_W64.png" alt="L2 W64">
                 </div>
-                <div class="comparison-label">L=2, Width=64</div>
+                <div class="comparison-label">$L=2$, Width=64</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj4/part1_content/final_results/reconstruction_L2_W256.png" alt="L2 W256">
                 </div>
-                <div class="comparison-label">L=2, Width=256</div>
+                <div class="comparison-label">$L=2$, Width=256</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj4/part1_content/final_results/reconstruction_L10_W64.png" alt="L10 W64">
                 </div>
-                <div class="comparison-label">L=10, Width=64</div>
+                <div class="comparison-label">$L=10$, Width=64</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj4/part1_content/final_results/reconstruction_L10_W256.png" alt="L10 W256">
                 </div>
-                <div class="comparison-label">L=10, Width=256</div>
+                <div class="comparison-label">$L=10$, Width=256</div>
             </div>
         </div>
 
         <p>
-            As expected, higher positional encoding frequencies (L=10) capture fine details better than lower frequencies (L=2). 
-            Similarly, wider networks (256 units) produce smoother reconstructions compared to narrower ones (64 units). 
-            The combination of high frequency encoding and sufficient network capacity is crucial for high-quality reconstruction.
+            As expected, higher positional encoding frequencies ($L=10$) capture fine details better than lower frequencies ($L=2$). 
+            Similarly, wider networks (256 units) produce smoother reconstructions compared to narrower ones (64 units).
         </p>
 
         <h3>Training Metrics</h3>
@@ -597,13 +817,13 @@
                 <div class="image-container">
                     <img src="proj4/part1_content/psnr_curve.png" alt="PSNR Curve">
                 </div>
-                <div class="comparison-label">PSNR Training Curve</div>
+                <div class="comparison-label">PSNR Training Curve (Fox Image)</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj4/part1_content/loss_curve.png" alt="Loss Curve">
                 </div>
-                <div class="comparison-label">Loss Training Curve</div>
+                <div class="comparison-label">Loss Training Curve (Fox Image)</div>
             </div>
         </div>
 
@@ -614,40 +834,54 @@
 
         <p>
             Building on the 2D neural field foundation, I implemented a full Neural Radiance Field that represents 
-            3D scenes from multi-view images. This involved creating rays from camera parameters, sampling points 
-            along rays, implementing the NeRF network architecture, and performing volume rendering to synthesize 
-            novel views.
+            3D scenes from multi-view images using inverse rendering from calibrated cameras.
         </p>
 
-        <h3>Implementation Overview</h3>
-        <div class="algorithm-box">
-            <h4>Key Components:</h4>
-            <ul>
-                <li><strong>Ray Generation:</strong> Convert pixel coordinates to 3D rays using camera parameters</li>
-                <li><strong>Point Sampling:</strong> Sample points along rays with random perturbation</li>
-                <li><strong>NeRF Network:</strong> MLP that predicts density and color from 3D position and view direction</li>
-                <li><strong>Volume Rendering:</strong> Composite samples along rays to produce final pixel colors</li>
-                <li><strong>Training:</strong> Optimize network to match observed multi-view images</li>
-            </ul>
-        </div>
+        <h3>Part 2.1: Create Rays from Cameras</h3>
+        <p>
+            I implemented three core coordinate transformations to generate camera rays. First, I used 4×4 transformation matrices to convert points from camera space to world coordinates: $\mathbf{x}_w = \mathbf{R} \mathbf{x}_c + \mathbf{t}$. Then I inverted the camera intrinsic matrix to convert pixel coordinates to 3D camera coordinates: $\mathbf{x}_c = K^{-1} \begin{bmatrix} u \\ v \\ 1 \end{bmatrix}$. Finally, I generated rays by computing the origin as the camera position $\mathbf{o} = \mathbf{t}$ and the direction as the normalized vector from camera center through each pixel.
+        </p>
 
-        <h3>Ray and Sample Visualizations</h3>
-        <p>Visualization of camera frustums, sampled rays, and 3D sample points:</p>
+        <h3>Part 2.2: Sampling</h3>
+        <p>
+            I implemented random ray sampling from multi-view images, adding 0.5 to UV coordinates to sample from pixel centers rather than corners. For each ray, I uniformly sampled 64 points between near and far planes by dividing the ray into equal intervals. During training, I added random perturbations $t_i = t_i + \mathcal{U}(0, \Delta t)$ to sample positions to prevent overfitting and ensure the model explores all locations along each ray.
+        </p>
+
+        <h3>Part 2.3: Putting the Dataloading All Together</h3>
+        <p>
+            I created a unified $\texttt{RaysData}$ class that precomputes ray origins and directions for all training images, then efficiently samples 10,000 random rays per iteration. This dataloader returns ray origins, directions, and corresponding ground truth RGB colors for batch training. I verified the implementation by visualizing camera frustums, rays, and 3D sample points using Viser.
+        </p>
 
         <div class="comparison">
             <div class="comparison-item">
-                <div class="image-container frustum-container ray-frustum-container">
-                    <img src="proj4/part2_content/visualizations_rays/lego_render1.png" alt="Ray Visualization 1">
+                <div class="image-container frustum-container">
+                    <img src="proj4/part2_content/visualizations_rays/lego_render1.png" alt="Rays Visualization 1">
                 </div>
-                <div class="comparison-label">Camera Frustums and Ray Samples</div>
+                <div class="comparison-label">Camera Frustums and Rays - View 1</div>
             </div>
             <div class="comparison-item">
-                <div class="image-container frustum-container ray-frustum-container">
-                    <img src="proj4/part2_content/visualizations_rays/lego_render2.png" alt="Ray Visualization 2">
+                <div class="image-container frustum-container">
+                    <img src="proj4/part2_content/visualizations_rays/lego_render2.png" alt="Rays Visualization 2">
                 </div>
-                <div class="comparison-label">3D Sample Points Visualization</div>
+                <div class="comparison-label">Camera Frustums and Rays - View 2</div>
             </div>
         </div>
+
+        <h3>Part 2.4: Neural Radiance Field</h3>
+        <p>
+            I built an 8-layer MLP that takes positionally-encoded 3D coordinates ($L=10$) and view directions ($L=4$) as input. The network uses skip connections at layer 5 and has separate heads for density prediction (with ReLU) and view-dependent color prediction (with Sigmoid). This architecture allows the model to capture both geometric structure and view-dependent appearance effects like specular highlights.
+        </p>
+
+        <h3>3D Neural Radiance Field Architecture</h3>
+        
+        <div style="text-align: center; margin: 30px auto; max-width: 75%;">
+            <img src="proj4/3d_nn_design.png" alt="3D Neural Radiance Field Architecture" style="width: 100%; height: auto; border-radius: 4px;">
+        </div>
+
+        <h3>Part 2.5: Volume Rendering</h3>
+        <p>
+            I implemented the discrete volume rendering equation to composite colors and densities along rays into final pixel colors: $C(\mathbf{r}) = \sum_{i=1}^{N} T_i \alpha_i \mathbf{c}_i$. The function computes alpha values $\alpha_i = 1 - \exp(-\sigma_i \delta_i)$ and transmittance $T_i = \exp(-\sum_{j=1}^{i-1} \sigma_j \delta_j)$ using cumulative sums for proper alpha compositing. My implementation passed the provided torch.allclose() test, ensuring correct mathematical computation of the rendering integral.
+        </p>
 
         <h3>Training Progression</h3>
         <p>Training progression showing the NeRF learning to represent the Lego scene:</p>
@@ -705,8 +939,8 @@
         <div class="psnr-info">
             <h4>Performance Results:</h4>
             <p>
-                The final model achieved <strong>25.2 PSNR</strong> on the validation set after 1000 training iterations 
-                with a batch size of 10k rays. Training used Adam optimizer with learning rate 5e-4. The model successfully 
+                The final model achieved <strong>25.2 dB PSNR</strong> on the validation set after 1000 training iterations 
+                with a batch size of 10k rays. Training used Adam optimizer with learning rate $5 \times 10^{-4}$. The model successfully 
                 learns to represent the complex geometry and appearance of the Lego scene.
             </p>
         </div>
@@ -724,6 +958,37 @@
             Lego NeRF - Spherical Novel View Rendering
         </div>
 
+        <h3>Volume Rendering Implementation</h3>
+        <div class="algorithm-box">
+            <h4>Discrete Volume Rendering Equation:</h4>
+            <div class="equation">
+                $$C(\mathbf{r}) = \sum_{i=1}^{N} T_i \alpha_i \mathbf{c}_i$$
+                $$\text{where } T_i = \exp\left(-\sum_{j=1}^{i-1} \sigma_j \delta_j\right), \quad \alpha_i = 1 - \exp(-\sigma_i \delta_i)$$
+            </div>
+            <ul>
+                <li><strong>Alpha Values:</strong> $\alpha_i = 1 - \exp(-\sigma_i \cdot \delta_i)$ for absorption probability</li>
+                <li><strong>Transmittance:</strong> $T_i$ computed using torch.cumsum() for ray termination probability</li>
+                <li><strong>Weight Calculation:</strong> $w_i = T_i \cdot \alpha_i$ for proper alpha compositing</li>
+                <li><strong>Final Color:</strong> Weighted sum $C(\mathbf{r}) = \sum_{i=1}^{N} w_i \mathbf{c}_i$</li>
+                <li><strong>Vectorization:</strong> Entire batch of 10k rays processed simultaneously for efficiency</li>
+                <li><strong>Step Size:</strong> $\delta_i = \frac{z_{\text{far}} - z_{\text{near}}}{N_{\text{samples}}}$ with 64 samples per ray</li>
+                <li><strong>Validation:</strong> Passed torch.allclose() test with reference implementation</li>
+            </ul>
+        </div>
+
+        <h3>Implementation Overview</h3>
+        <div class="algorithm-box">
+            <h4>Key Components Implemented:</h4>
+            <ul>
+                <li><strong>Camera-to-World Transform:</strong> Implemented `transform(c2w, x_c)` to convert camera coordinates to world space using 4x4 transformation matrices</li>
+                <li><strong>Pixel-to-Camera Conversion:</strong> `pixel_to_camera(K, uv, s)` converts 2D pixel coordinates to 3D camera coordinates using camera intrinsics</li>
+                <li><strong>Ray Generation:</strong> `pixel_to_ray(K, c2w, uv)` generates ray origins and normalized directions from pixel coordinates</li>
+                <li><strong>Point Sampling:</strong> `sample_along_rays(rays_o, rays_d, n_samples, near, far, perturb)` samples 64 points with explicit near/far bounds ($z_{\text{near}}=2.0$, $z_{\text{far}}=6.0$ for Lego)</li>
+                <li><strong>NeRF Network:</strong> 8-layer MLP with skip connections, predicting density (ReLU) and view-dependent RGB (sigmoid)</li>
+                <li><strong>Volume Rendering:</strong> Discrete alpha compositing using cumulative products for ray termination probability</li>
+            </ul>
+        </div>
+
         <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #ff8040;">
             <h2 id="part2_6" style="margin: 0; color: #ff8040;">Part 2.6: Training NeRF on Own Data</h2>
             <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">NeRF trained on personally captured object</div>
@@ -736,15 +1001,31 @@
             synthetic Lego scene.
         </p>
 
-        <h3>Hyperparameter Adjustments</h3>
+        <h3>Hyperparameter Adjustments for Real Data</h3>
         <div class="algorithm-box">
-            <h4>Key Changes for Real Data:</h4>
+            <h4>Critical Changes from Synthetic to Real Data:</h4>
             <ul>
-                <li><strong>Near/Far Bounds:</strong> Adjusted to near=0.02, far=0.5 (vs 2.0-6.0 for Lego)</li>
-                <li><strong>Samples per Ray:</strong> Increased to 64 samples for better quality</li>
-                <li><strong>Learning Rate:</strong> Reduced to 1e-4 for more stable training</li>
-                <li><strong>Image Resolution:</strong> Resized images to manageable resolution for training</li>
-                <li><strong>Training Iterations:</strong> Extended to 8000+ iterations for convergence</li>
+                <li><strong>Near/Far Bounds:</strong> $z_{\text{near}}=0.02$, $z_{\text{far}}=0.5$ (vs $z_{\text{near}}=2.0$, $z_{\text{far}}=6.0$ for Lego) - adjusted for close-up object capture</li>
+                <li><strong>Camera Intrinsics:</strong> Used actual calibrated K matrix instead of synthetic focal length</li>
+                <li><strong>Samples per Ray:</strong> 64 samples (consistent) but denser due to smaller depth range</li>
+                <li><strong>Learning Rate:</strong> $5 \times 10^{-4}$ (maintained from Lego) but longer training needed</li>
+                <li><strong>Training Duration:</strong> 10,000 iterations (vs 2,000 for Lego) due to real-world complexity</li>
+                <li><strong>Image Preprocessing:</strong> Undistortion with cv2.getOptimalNewCameraMatrix() and ROI cropping</li>
+                <li><strong>Batch Size:</strong> 10k rays per iteration (maintained)</li>
+                <li><strong>Random Seed:</strong> Fixed seed=42 for reproducible results</li>
+            </ul>
+        </div>
+
+        <h3>Real Data Challenges Encountered</h3>
+        <div class="highlight">
+            <h4>Implementation Challenges:</h4>
+            <ul>
+                <li><strong>ArUco Detection:</strong> Required careful tag placement with white borders for consistent detection</li>
+                <li><strong>Camera Calibration:</strong> 30-50 calibration images needed with varied angles/distances</li>
+                <li><strong>Pose Estimation:</strong> solvePnP occasionally failed; implemented robust error handling</li>
+                <li><strong>Image Distortion:</strong> Real phone camera required undistortion + principal point adjustment</li>
+                <li><strong>Lighting Consistency:</strong> Captured images under uniform lighting to avoid brightness variations</li>
+                <li><strong>Motion Blur:</strong> Required stable capture technique to avoid blurry training images</li>
             </ul>
         </div>
 
@@ -862,11 +1143,26 @@
 
         <h3>Performance Results</h3>
         <div class="psnr-info">
-            <h4>Final PSNR Scores:</h4>
+            <h4>Quantitative Results Summary:</h4>
             <ul>
-                <li><strong>Lego Scene (Synthetic):</strong> 25.2 PSNR after 1000 iterations</li>
-                <li><strong>Own Data (Real):</strong> Successful novel view synthesis with good visual quality</li>
-                <li><strong>2D Neural Fields:</strong> High-quality image reconstruction with proper hyperparameters</li>
+                <li><strong>Lego Scene (Synthetic):</strong> 25.2 dB PSNR after 2000 epochs, exceeded 23 dB PSNR target</li>
+                <li><strong>Own Data NeRF:</strong> Successful 10,000 epoch training with convergent loss curve</li>
+                <li><strong>2D Neural Fields (Messi):</strong> $\sim$24 dB PSNR final result with $L=10$, $W=256$</li>
+                <li><strong>Volume Rendering Verification:</strong> Passed torch.allclose() assertion test</li>
+                <li><strong>Camera Calibration:</strong> Successful pose estimation for 30+ images</li>
+                <li><strong>Novel View Videos:</strong> Generated 120-frame circular orbit videos at 30 FPS</li>
+            </ul>
+        </div>
+
+        <h3>Implementation Validation</h3>
+        <div class="algorithm-box">
+            <h4>Technical Verification:</h4>
+            <ul>
+                <li><strong>Volume Rendering Test:</strong> Implementation passed provided torch test with correct output values</li>
+                <li><strong>Ray Generation:</strong> Verified UV coordinate mapping with assertion: images_train[0, sample_uvs[:,1], sample_uvs[:,0]] == dataset.pixels</li>
+                <li><strong>Camera Transform:</strong> Verified inverse transform: x == transform(c2w.inv(), transform(c2w, x))</li>
+                <li><strong>Data Pipeline:</strong> Successfully processed 30+ images with ArUco pose estimation</li>
+                <li><strong>Training Convergence:</strong> Both synthetic and real data showed decreasing loss and increasing PSNR</li>
             </ul>
         </div>
 
