@@ -305,6 +305,21 @@
             object-fit: contain;
             transform: translateY(8%);
         }
+        
+        .ray-zoom-container img {
+            width: 150%;
+            height: 150%;
+            object-fit: contain;
+            transform: translateY(10%);
+        }
+        
+        .frustum-shift-right img {
+            transform: translateX(10%);
+        }
+        
+        .frustum-shift-down img {
+            transform: translateY(5%) translateX(-8%);
+        }
 
         @media (max-width: 768px) {
             .container {
@@ -636,6 +651,21 @@
             </div>
         </div>
 
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container frustum-container frustum-shift-right">
+                    <img src="proj4/part0_content/vaja_frustum3.png" alt="Camera Frustums 3">
+                </div>
+                <div class="comparison-label">Camera Frustums Visualization - View 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container frustum-container frustum-shift-down">
+                    <img src="proj4/part0_content/vaja_frustum4.png" alt="Camera Frustums 4">
+                </div>
+                <div class="comparison-label">Camera Frustums Visualization - View 4</div>
+            </div>
+        </div>
+
         <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #40ff40;">
             <h2 id="part1" style="margin: 0; color: #40ff40;">Part 1: 2D Neural Field</h2>
             <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Fitting neural networks to represent 2D images</div>
@@ -805,18 +835,36 @@
         </p>
 
         <h3>Training Metrics</h3>
+        
+        <h4>Fox Image Training Curves</h4>
         <div class="comparison">
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/psnr_curve.png" alt="PSNR Curve">
+                    <img src="proj4/part1_content/psnr_curve.png" alt="Fox PSNR Curve">
                 </div>
                 <div class="comparison-label">PSNR Training Curve (Fox Image)</div>
             </div>
             <div class="comparison-item">
                 <div class="image-container">
-                    <img src="proj4/part1_content/loss_curve.png" alt="Loss Curve">
+                    <img src="proj4/part1_content/loss_curve.png" alt="Fox Loss Curve">
                 </div>
                 <div class="comparison-label">Loss Training Curve (Fox Image)</div>
+            </div>
+        </div>
+
+        <h4>Messi Image Training Curves</h4>
+        <div class="comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/messi_psnr_curve.png" alt="Messi PSNR Curve">
+                </div>
+                <div class="comparison-label">PSNR Training Curve (Messi Image)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj4/part1_content/messi_loss_curve.png" alt="Messi Loss Curve">
+                </div>
+                <div class="comparison-label">Loss Training Curve (Messi Image)</div>
             </div>
         </div>
 
@@ -847,16 +895,25 @@
 
         <div class="comparison">
             <div class="comparison-item">
-                <div class="image-container frustum-container">
+                <div class="image-container frustum-container ray-zoom-container">
                     <img src="proj4/part2_content/visualizations_rays/lego_render1.png" alt="Rays Visualization 1">
                 </div>
                 <div class="comparison-label">Camera Frustums and Rays - View 1</div>
             </div>
             <div class="comparison-item">
-                <div class="image-container frustum-container">
+                <div class="image-container frustum-container ray-zoom-container">
                     <img src="proj4/part2_content/visualizations_rays/lego_render2.png" alt="Rays Visualization 2">
                 </div>
                 <div class="comparison-label">Camera Frustums and Rays - View 2</div>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: center; margin: 40px 0;">
+            <div style="text-align: center; width: 50%;">
+                <div class="image-container frustum-container ray-frustum-container">
+                    <img src="proj4/part2_content/visualizations_rays/lego_render3.png" alt="Rays Visualization 3">
+                </div>
+                <div class="comparison-label">Camera Frustums and Rays - View 3</div>
             </div>
         </div>
 
@@ -969,7 +1026,7 @@
 
 
         <h3>Training Progression</h3>
-        <p>Training progression showing the NeRF learning to represent my captured object:</p>
+        <p>Training progression showing the NeRF learning to represent my captured object. We can observe significant improvements in fine details as training progresses - the harmonium keys become increasingly well-defined and the yellow holes on the top near the ArUco tag become more visible and accurately rendered:</p>
 
         <div class="training-progression">
             <div class="comparison-item">
