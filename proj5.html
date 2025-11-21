@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 5 - CS180</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 80px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #808080;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        h2 {
+            color: #ffffff;
+            font-size: 1.8em;
+            font-weight: 300;
+            margin: 80px 0 40px;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            color: #c0c0c0;
+            font-size: 1.3em;
+            font-weight: 300;
+            margin: 40px 0 20px;
+        }
+
+        h4 {
+            color: #b0b0b0;
+            font-size: 1.1em;
+            font-weight: 300;
+            margin: 30px 0 15px;
+        }
+
+        p {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        ul, ol {
+            color: #a0a0a0;
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        code {
+            background: #1a1a1a;
+            color: #80ff80;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: inherit;
+        }
+
+        .image-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            background: #1a1a1a;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+        }
+
+        .image-container img {
+            width: 40%;
+            height: auto;
+            display: block;
+            opacity: 0.9;
+            transition: opacity 0.2s ease;
+            margin: 0 auto;
+        }
+
+        .image-container:hover img {
+            opacity: 1;
+        }
+
+        .image-caption {
+            color: #ffffff;
+            font-size: 0.95em;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .triple-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-item img {
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .comparison-label {
+            color: #808080;
+            font-size: 0.9em;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            color: #808080;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .back-button:hover {
+            background: #2a2a2a;
+            color: #ffffff;
+            border-color: #606060;
+        }
+
+        .highlight {
+            background: #1a1a1a;
+            border-left: 3px solid #ffff00;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .section-box {
+            background: #1a1a1a;
+            border-left: 3px solid #ff4080;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .triple-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="./index.html" class="back-button" title="Back to portfolio">
+        <span style="font-size: 14px;">../</span>
+    </a>
+    
+    <div class="container">
+        <div style="margin-bottom: 60px;">
+            <h1 style="margin-bottom: 20px;">proj5/</h1>
+            <div style="margin-left: 40px;">
+                <div style="margin: 8px 0;">
+                    <a href="#overview" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">├── </span>
+                        <span style="color: #ffffff;">overview/</span>
+                        <span style="color: #606060; margin-left: 8px;">Diffusion Models</span>
+                    </a>
+                </div>
+                <div style="margin: 8px 0;">
+                    <a href="#part0" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                        <span style="color: #404040;">└── </span>
+                        <span style="color: #ffffff;">part0/</span>
+                        <span style="color: #606060; margin-left: 8px;">Setup</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <h1 style="font-size: 2.5em; margin-bottom: 10px;">Diffusion Models!</h1>
+        <div style="color: #808080; margin-bottom: 40px; font-size: 1em;">CS180 Project 5: Diffusion Models</div>
+
+        <h2 id="overview">Overview</h2>
+        <p>
+            In part A you will play around with diffusion models, implement diffusion sampling loops, and use them for other 
+            tasks such as inpainting and creating optical illusions. Instructions can be found below and in the provided notebook.
+        </p>
+        
+        <p>
+            Because part A is simply to get your feet wet with pre-trained diffusion models, all deliverables should be 
+            completed in the notebook. You will still submit a webpage with your results.
+        </p>
+
+        <div class="highlight">
+            <strong>START EARLY!</strong> This project, in many ways, will be the most difficult project this semester.
+        </div>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #ff4040;">
+            <h2 id="part0" style="margin: 0; color: #ff4040;">Part 0: Setup</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Getting familiar with DeepFloyd diffusion model</div>
+        </div>
+
+        <h3>Deliverables</h3>
+        <ol>
+            <li>Come up with some interesting text prompts and generate their embeddings.</li>
+            <li>Choose 3 of your prompts to generate images and display the caption and the output of the model. 
+                Reflect on the quality of the outputs and their relationships to the text prompts. Make sure to try 
+                at least 2 different num_inference_steps values.</li>
+            <li>Report the random seed that you're using here. You should use the same seed all subsequent parts.</li>
+        </ol>
+
+        <h3>Generated Prompt Embeddings</h3>
+        <p>I generated embeddings for the following text prompts, exploring a variety of subjects and artistic styles:</p>
+        
+        <div class="section-box">
+            <ul>
+                <li>'a photo of a horse running through a meadow'</li>
+                <li>'an oil painting of a violin resting on sheet music'</li>
+                <li>'a high quality picture of a dinosaur in a forest'</li>
+                <li>'a photo of the Golden Temple at sunrise'</li>
+                <li>'a still life painting of pumpkins on a wooden table'</li>
+                <li>'a neon sign that says OPEN glowing in the dark'</li>
+                <li>'a high quality photo of a Porsche on a mountain road'</li>
+                <li>'a photo of a soccer ball on a wet field at night'</li>
+            </ul>
+        </div>
+
+        <h3>Selected Images and Analysis</h3>
+        <p>From my prompt collection, I selected the following three for image generation and analysis:</p>
+        
+        <div class="highlight">
+            <strong>Random Seed:</strong> 100 (used consistently across all parts of the project)
+        </div>
+
+        <div class="triple-comparison" style="grid-template-rows: auto auto auto; gap: 20px;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/horse_meadow_step20.png" alt="Horse meadow 20 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">20 inference steps</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/violin_sheetmusic_step20.png" alt="Violin 20 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">20 inference steps</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/dinosaur_forest_step20.png" alt="Dinosaur 20 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">20 inference steps</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-caption">"a photo of a horse running through a meadow"</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-caption">"an oil painting of a violin resting on sheet music"</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-caption">"a high quality picture of a dinosaur in a forest"</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/horse_meadow_step40.png" alt="Horse meadow 40 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">40 inference steps</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/violin_sheetmusic_step40.png" alt="Violin 40 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">40 inference steps</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part0/dinosaur_forest_step40.png" alt="Dinosaur 40 steps" style="width: 100%;">
+                </div>
+                <div class="comparison-label" style="margin-top: 10px;">40 inference steps</div>
+            </div>
+        </div>
+
+        <h3>Reflection on Model Output Quality</h3>
+        <p>
+            The DeepFloyd model demonstrates impressive capability in understanding and translating text descriptions 
+            into coherent visual representations:
+        </p>
+
+        <ul>
+            <li><strong>Horse running through meadow:</strong> The model successfully captures the motion and natural 
+                setting, showing good understanding of spatial relationships and movement dynamics.</li>
+            <li><strong>Violin on sheet music:</strong> The artistic prompt resulted in a composition that conveys the 
+                classical, refined aesthetic requested. The model interprets "oil painting" style appropriately.</li>
+            <li><strong>Dinosaur in forest:</strong> This fantastical prompt showcases the model's ability to combine 
+                elements that don't typically coexist in reality, creating a believable prehistoric scene.</li>
+        </ul>
+
+        <p>
+            All images were generated using the same random seed (100) for consistency. The model shows strong semantic 
+            understanding and generates visually coherent results that align well with the textual descriptions.
+        </p>
+
+        <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
+            © 2025 Sukhamrit Singh. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
