@@ -221,15 +221,31 @@
                     <a href="#overview" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
                         <span style="color: #404040;">├── </span>
                         <span style="color: #ffffff;">overview/</span>
-                        <span style="color: #606060; margin-left: 8px;">Diffusion Models</span>
+                        <span style="color: #606060; margin-left: 8px;">Project Overview</span>
                     </a>
                 </div>
                 <div style="margin: 8px 0;">
-                    <a href="#part0" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                    <a href="#parta" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
                         <span style="color: #404040;">└── </span>
-                        <span style="color: #ffffff;">part0/</span>
-                        <span style="color: #606060; margin-left: 8px;">Setup</span>
+                        <span style="color: #ffffff;">partA/</span>
+                        <span style="color: #606060; margin-left: 8px;">The Power of Diffusion Models!</span>
                     </a>
+                </div>
+                <div style="margin-left: 40px;">
+                    <div style="margin: 8px 0;">
+                        <a href="#part0" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                            <span style="color: #404040;">├── </span>
+                            <span style="color: #ffffff;">part0/</span>
+                            <span style="color: #606060; margin-left: 8px;">Setup</span>
+                        </a>
+                    </div>
+                    <div style="margin: 8px 0;">
+                        <a href="#part1" style="color: #808080; text-decoration: none; transition: color 0.2s ease;">
+                            <span style="color: #404040;">└── </span>
+                            <span style="color: #ffffff;">part1/</span>
+                            <span style="color: #606060; margin-left: 8px;">Sampling Loops</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,7 +261,12 @@
         </p>
 
         <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 60px -20px 40px; border-left: 3px solid #ff4040;">
-            <h2 id="part0" style="margin: 0; color: #ff4040;">Part 0: Setup</h2>
+            <h2 id="parta" style="margin: 0; color: #ff4040;">Part A: The Power of Diffusion Models!</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Exploring diffusion models with DeepFloyd IF</div>
+        </div>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 40px -20px 40px; border-left: 3px solid #ffaa00;">
+            <h2 id="part0" style="margin: 0; color: #ffaa00;">Part 0: Setup</h2>
             <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Getting familiar with DeepFloyd diffusion model</div>
         </div>
 
@@ -339,6 +360,815 @@
             All images were generated using the same random seed (100) for consistency. The model shows strong semantic 
             understanding and generates visually coherent results that align well with the textual descriptions.
         </p>
+
+        <div style="background: linear-gradient(90deg, #1a1a1a 0%, transparent 100%); padding: 20px; margin: 40px -20px 40px; border-left: 3px solid #40ff40;">
+            <h2 id="part1" style="margin: 0; color: #40ff40;">Part 1: Sampling Loops</h2>
+            <div style="color: #808080; font-size: 0.9em; margin-top: 5px;">Implementing and modifying diffusion sampling loops</div>
+        </div>
+
+        <h3>1.1 Implementing the Forward Process</h3>
+        <p>
+            The forward process adds noise to a clean image progressively. I implemented this using the equation 
+            x_t = √(α̅_t) * x_0 + √(1 - α̅_t) * ε, where ε is random noise sampled from a standard normal distribution.
+        </p>
+        
+        <p>Here's the Berkeley Campanile at different noise levels:</p>
+        
+        <div class="triple-comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.1_noise250.png" alt="Campanile with noise at t=250" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 250</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.1_noise500.png" alt="Campanile with noise at t=500" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 500</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.1_noise750.png" alt="Campanile with noise at t=750" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 750</div>
+            </div>
+        </div>
+
+        <h3>1.2 Classical Denoising</h3>
+        <p>
+            I attempted to denoise the noisy Campanile images using classical Gaussian blur filtering. As expected, 
+            this approach struggles significantly with higher noise levels and doesn't produce satisfactory results.
+        </p>
+        
+        <div class="triple-comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.2_noise250.png" alt="Gaussian denoised at t=250" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Gaussian Blur Denoising (t=250)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.2_noise500.png" alt="Gaussian denoised at t=500" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Gaussian Blur Denoising (t=500)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.2_noise750.png" alt="Gaussian denoised at t=750" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Gaussian Blur Denoising (t=750)</div>
+            </div>
+        </div>
+
+        <h3>1.3 One-Step Denoising</h3>
+        <p>
+            Using the pretrained DeepFloyd UNet, I implemented one-step denoising. The model estimates the noise in 
+            the image and removes it to recover an approximation of the original clean image. This approach works 
+            significantly better than Gaussian blur, especially at lower noise levels.
+        </p>
+        
+        <div class="triple-comparison">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.3_noise250.png" alt="One-step denoised at t=250" style="width: 100%;">
+                </div>
+                <div class="comparison-label">One-Step Denoising (t=250)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.3_noise500.png" alt="One-step denoised at t=500" style="width: 100%;">
+                </div>
+                <div class="comparison-label">One-Step Denoising (t=500)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.3_noise750.png" alt="One-step denoised at t=750" style="width: 100%;">
+                </div>
+                <div class="comparison-label">One-Step Denoising (t=750)</div>
+            </div>
+        </div>
+
+        <h3>1.4 Iterative Denoising</h3>
+        <p>
+            I implemented iterative denoising using strided timesteps (990, 960, 930, ..., 0 with stride 30). 
+            This approach progressively removes noise over multiple steps, producing much higher quality results 
+            than single-step denoising.
+        </p>
+        
+        <p>Here's the progressive denoising process shown every 5th step:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_noise690.png" alt="Denoising t=690" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 690</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_noise540.png" alt="Denoising t=540" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 540</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_noise390.png" alt="Denoising t=390" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 390</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_noise240.png" alt="Denoising t=240" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 240</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_noise90.png" alt="Denoising t=90" style="width: 100%;">
+                </div>
+                <div class="comparison-label">t = 90</div>
+            </div>
+        </div>
+        
+        <p>Final comparison of different denoising approaches:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Original</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_iterative_final.png" alt="Iteratively denoised" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Iterative Denoising</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_onestep.png" alt="One-step denoised" style="width: 100%;">
+                </div>
+                <div class="comparison-label">One-Step Denoising</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.4_blurred.png" alt="Gaussian blurred" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Gaussian Blur</div>
+            </div>
+        </div>
+
+        <h3>1.5 Diffusion Model Sampling</h3>
+        <p>
+            Using the iterative denoising function starting from pure noise (i_start = 0), I generated 5 samples 
+            with the prompt "a high quality photo". The results demonstrate the model's ability to generate diverse 
+            images from random noise.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.5_im1.png" alt="Sample 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Sample 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.5_im2.png" alt="Sample 2" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Sample 2</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.5_im3.png" alt="Sample 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Sample 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.5_im4.png" alt="Sample 4" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Sample 4</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.5_im5.png" alt="Sample 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Sample 5</div>
+            </div>
+        </div>
+
+        <h3>1.6 Classifier-Free Guidance (CFG)</h3>
+        <p>
+            To improve image quality, I implemented Classifier-Free Guidance with γ = 7. This technique computes 
+            both conditional and unconditional noise estimates, then combines them to produce higher quality images 
+            at the expense of some diversity.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.6_im1.png" alt="CFG Sample 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">CFG Sample 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.6_im2.png" alt="CFG Sample 2" style="width: 100%;">
+                </div>
+                <div class="comparison-label">CFG Sample 2</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.6_im3.png" alt="CFG Sample 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">CFG Sample 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.6_im4.png" alt="CFG Sample 4" style="width: 100%;">
+                </div>
+                <div class="comparison-label">CFG Sample 4</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.6_im5.png" alt="CFG Sample 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">CFG Sample 5</div>
+            </div>
+        </div>
+
+        <h3>1.7 Image-to-image Translation</h3>
+        <p>
+            Following the SDEdit algorithm, I added noise to the original Campanile image and then denoised it 
+            using the prompt "a high quality photo". Different noise levels create different degrees of editing, 
+            with higher noise levels allowing for more dramatic changes.
+        </p>
+        
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Campanile</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise1.png" alt="SDEdit noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise3.png" alt="SDEdit noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise5.png" alt="SDEdit noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise7.png" alt="SDEdit noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise10.png" alt="SDEdit noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_campanile_noise20.png" alt="SDEdit noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <p>Results on my own test images:</p>
+        
+        <h4>Soccer Ball Image</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7_soccer_original.png" alt="Original Soccer" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Soccer Ball</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise1.png" alt="Soccer noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise3.png" alt="Soccer noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise5.png" alt="Soccer noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise7.png" alt="Soccer noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise10.png" alt="Soccer noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_soccer_noise20.png" alt="Soccer noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <h4>Violin Image</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7_violin_original.png" alt="Original Violin" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Violin</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise1.png" alt="Violin noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise3.png" alt="Violin noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise5.png" alt="Violin noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise7.png" alt="Violin noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise10.png" alt="Violin noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7_violin_noise20.png" alt="Violin noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+
+        <h4>1.7.1 Editing Hand-Drawn and Web Images</h4>
+        <p>
+            This procedure works particularly well when starting with non-realistic images and projecting them 
+            onto the natural image manifold. I experimented with both web images and hand-drawn sketches.
+        </p>
+        
+        <h4>Painting Web Image</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7.1_painting_original.png" alt="Original avocado" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Web Image</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise1.png" alt="Avocado noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise3.png" alt="Avocado noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise5.png" alt="Avocado noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise7.png" alt="Avocado noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise10.png" alt="Avocado noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_painting_noise20.png" alt="Avocado noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <h4>Hand-Drawn Image 1</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7.1_drawing1_original.png" alt="Original drawing 1" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Hand-Drawn Image</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise1.png" alt="Drawing 1 noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise3.png" alt="Drawing 1 noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise5.png" alt="Drawing 1 noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise7.png" alt="Drawing 1 noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise10.png" alt="Drawing 1 noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing1_noise20.png" alt="Drawing 1 noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <h4>Hand-Drawn Image 2</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7.1_drawing2_original.png" alt="Original drawing 2" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Hand-Drawn Image</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise1.png" alt="Drawing 2 noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise3.png" alt="Drawing 2 noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise5.png" alt="Drawing 2 noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise7.png" alt="Drawing 2 noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise10.png" alt="Drawing 2 noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.1_drawing2_noise20.png" alt="Drawing 2 noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+
+        <h4>1.7.2 Inpainting</h4>
+        <p>
+            Following the RePaint algorithm, I implemented inpainting by running the diffusion denoising loop 
+            while forcing pixels outside the edit mask to match the original image (with appropriate noise 
+            added for each timestep).
+        </p>
+        
+        <div style="margin: 20px auto; max-width: 800px;">
+            <div class="comparison" style="margin-bottom: 20px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/original_img.png" alt="Campanile original" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label">Original</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.7.2_campanile_inpaint.png" alt="Campanile inpainted" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label">Inpainted Result</div>
+                </div>
+            </div>
+            <div class="comparison-item" style="text-align: center;">
+                <img src="proj5/part1/1.7.2_campanile_mask.png" alt="Campanile mask" style="width: 50%; border-radius: 4px;">
+                <div class="comparison-label">Mask</div>
+            </div>
+        </div>
+        
+        <h4>Billboard Inpainting</h4>
+        <div class="comparison" style="margin: 20px auto; max-width: 800px;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.2_bilboard_original.png" alt="Billboard original" style="width: 100%; margin-bottom: 10px;">
+                </div>
+                <div class="comparison-label">Original</div>
+                <div class="image-container" style="margin-top: 15px;">
+                    <img src="proj5/part1/1.7.2_bilboard_mask.png" alt="Billboard mask" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Mask</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.2_bilboard_inpaint.png" alt="Billboard inpainted" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Inpainted Result</div>
+            </div>
+        </div>
+        
+        <h4>Tree Inpainting</h4>
+        <div class="comparison" style="margin: 20px auto; max-width: 800px;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.2_tree_original.png" alt="Tree original" style="width: 100%; margin-bottom: 10px;">
+                </div>
+                <div class="comparison-label">Original</div>
+                <div class="image-container" style="margin-top: 15px;">
+                    <img src="proj5/part1/1.7.2_tree_mask.png" alt="Tree mask" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Mask</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.2_tree_inpaint.png" alt="Tree inpainted" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Inpainted Result</div>
+            </div>
+        </div>
+
+        <h4>1.7.3 Text-Conditional Image-to-image Translation</h4>
+        <p>
+            Similar to SDEdit but now guided by specific text prompts. This allows for more controlled edits 
+            that not only project onto the natural image manifold but also incorporate semantic guidance from 
+            the text prompt.
+        </p>
+        
+        <h4>Campanile → Golden Temple at Sunrise</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Campanile</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise1.png" alt="Campanile to Golden Temple noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise3.png" alt="Campanile to Golden Temple noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise5.png" alt="Campanile to Golden Temple noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise7.png" alt="Campanile to Golden Temple noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise10.png" alt="Campanile to Golden Temple noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_campanile_noise20.png" alt="Campanile to Golden Temple noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <h4>Soccer Ball → Golden Temple at Sunrise</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7_soccer_original.png" alt="Original Soccer Ball" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Soccer Ball</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise1.png" alt="Soccer instrument noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise3.png" alt="Soccer instrument noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise5.png" alt="Soccer instrument noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise7.png" alt="Soccer instrument noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise10.png" alt="Soccer instrument noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_soccer_noise20.png" alt="Soccer instrument noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+        
+        <h4>Violin → Golden Temple at Sunrise</h4>
+        <div class="comparison-item" style="text-align: center; margin-bottom: 20px;">
+            <img src="proj5/part1/1.7_violin_original.png" alt="Original Violin" style="width: 30%; border-radius: 4px;">
+            <div class="comparison-label">Original Violin</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise1.png" alt="Violin tech noise 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 1</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise3.png" alt="Violin tech noise 3" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 3</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise5.png" alt="Violin tech noise 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 5</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise7.png" alt="Violin tech noise 7" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 7</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise10.png" alt="Violin tech noise 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 10</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/1.7.3_violin_noise20.png" alt="Violin tech noise 20" style="width: 100%;">
+                </div>
+                <div class="comparison-label">i_start = 20</div>
+            </div>
+        </div>
+
+        <h3>1.8 Visual Anagrams</h3>
+        <p>
+            Visual anagrams are optical illusions created using diffusion models that show different images 
+            when viewed right-side up versus upside down. I implemented this by averaging noise estimates 
+            from two different text prompts - one for the normal orientation and one for the flipped image.
+        </p>
+        
+        <h4>Campfire People ↔ Old Man</h4>
+        <div class="comparison" style="margin: 30px auto; max-width: 600px;">
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_oldman_fire1.png" alt="Visual anagram 1" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_oldman_fire2.png" alt="Visual anagram 2" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 2</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin: 10px 0; font-style: italic; color: #a0a0a0;">
+            "An oil painting of an old man" ↔ "An oil painting of people around a campfire"
+        </div>
+        
+        <h4>Horse ↔ Dinosaur</h4>
+        <div class="comparison" style="margin: 30px auto; max-width: 600px;">
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_horse_dinosaur1.png" alt="Horse dinosaur 1" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_horse_dinosaur2.png" alt="Horse dinosaur 2" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 2</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin: 10px 0; font-style: italic; color: #a0a0a0;">
+            "A high quality picture of a dinosaur in a forest" ↔ "A photo of a horse running through a meadow"
+        </div>
+        
+        <h4>Pumpkins ↔ Porsche</h4>
+        <div class="comparison" style="margin: 30px auto; max-width: 600px;">
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_porche_pumpkin1.png" alt="Pumpkin Porsche 1" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 1</div>
+            </div>
+            <div class="comparison-item">
+                <img src="proj5/part1/1.8_porche_pumpkin2.png" alt="Pumpkin Porsche 2" style="width: 100%; border-radius: 4px;">
+                <div class="comparison-label">Image 2</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin: 10px 0; font-style: italic; color: #a0a0a0;">
+            "A high quality photo of a Porsche on a mountain road" ↔ "A still life painting of pumpkins on a wooden table"
+        </div>
+
+        <h3>1.9 Hybrid Images</h3>
+        <p>
+            Following Factorized Diffusion, I created hybrid images by combining low frequencies from one 
+            noise estimate with high frequencies from another. This technique creates images that appear 
+            different when viewed from various distances or when the viewing conditions change.
+        </p>
+        
+        <h4>Toilet Paper ↔ Sushi</h4>
+        <div class="comparison-item" style="text-align: center; margin: 30px auto; max-width: 400px;">
+            <img src="proj5/part1/1.9_toiletpaper_sushi.png" alt="Hybrid image: toilet paper and sushi" style="width: 100%; border-radius: 4px;">
+            <div class="comparison-label">Hybrid Image</div>
+        </div>
+        <div style="text-align: center; margin: 10px 0; font-style: italic; color: #a0a0a0;">
+            "A roll of toilet paper" + "A piece of sushi on a plate with chopsticks"
+        </div>
+        
+        <h4>Crown ↔ Tree</h4>
+        <div class="comparison-item" style="text-align: center; margin: 30px auto; max-width: 400px;">
+            <img src="proj5/part1/1.9_crown_tree.png" alt="Hybrid image: crown and tree" style="width: 100%; border-radius: 4px;">
+            <div class="comparison-label">Hybrid Image</div>
+        </div>
+        <div style="text-align: center; margin: 10px 0; font-style: italic; color: #a0a0a0;">
+            "A crown sitting on a table" + "A single lone tree in a field"
+        </div>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
             © 2025 Sukhamrit Singh. All rights reserved.
