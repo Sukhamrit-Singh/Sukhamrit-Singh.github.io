@@ -453,24 +453,49 @@
             this approach struggles significantly with higher noise levels and doesn't produce satisfactory results.
         </p>
         
-        <div class="triple-comparison">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.2_noise250.png" alt="Gaussian denoised at t=250" style="width: 100%;">
+        <div style="margin: 30px auto; max-width: 600px;">
+            <!-- Noisy Images Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise250.png" alt="Noisy image at t=250" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=250)</div>
                 </div>
-                <div class="comparison-label">Gaussian Blur Denoising (t=250)</div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise500.png" alt="Noisy image at t=500" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=500)</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise750.png" alt="Noisy image at t=750" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=750)</div>
+                </div>
             </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.2_noise500.png" alt="Gaussian denoised at t=500" style="width: 100%;">
+            
+            <!-- Gaussian Denoised Images Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.2_noise250.png" alt="Gaussian denoised at t=250" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Gaussian Blur Denoising (t=250)</div>
                 </div>
-                <div class="comparison-label">Gaussian Blur Denoising (t=500)</div>
-            </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.2_noise750.png" alt="Gaussian denoised at t=750" style="width: 100%;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.2_noise500.png" alt="Gaussian denoised at t=500" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Gaussian Blur Denoising (t=500)</div>
                 </div>
-                <div class="comparison-label">Gaussian Blur Denoising (t=750)</div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.2_noise750.png" alt="Gaussian denoised at t=750" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Gaussian Blur Denoising (t=750)</div>
+                </div>
             </div>
         </div>
 
@@ -481,24 +506,71 @@
             significantly better than Gaussian blur, especially at lower noise levels.
         </p>
         
-        <div class="triple-comparison">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.3_noise250.png" alt="One-step denoised at t=250" style="width: 100%;">
+        <div style="margin: 30px auto; max-width: 600px;">
+            <!-- Original Images Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Original (t=250)</div>
                 </div>
-                <div class="comparison-label">One-Step Denoising (t=250)</div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Original (t=500)</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Original (t=750)</div>
+                </div>
             </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.3_noise500.png" alt="One-step denoised at t=500" style="width: 100%;">
+            
+            <!-- Noisy Images Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise250.png" alt="Noisy image at t=250" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=250)</div>
                 </div>
-                <div class="comparison-label">One-Step Denoising (t=500)</div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise500.png" alt="Noisy image at t=500" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=500)</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.1_noise750.png" alt="Noisy image at t=750" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Noisy Image (t=750)</div>
+                </div>
             </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/part1/1.3_noise750.png" alt="One-step denoised at t=750" style="width: 100%;">
+            
+            <!-- Estimated Images Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.3_noise250.png" alt="One-step denoised at t=250" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Estimate of Original (t=250)</div>
                 </div>
-                <div class="comparison-label">One-Step Denoising (t=750)</div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.3_noise500.png" alt="One-step denoised at t=500" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Estimate of Original (t=500)</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="image-container">
+                        <img src="proj5/part1/1.3_noise750.png" alt="One-step denoised at t=750" style="width: 100%;">
+                    </div>
+                    <div class="comparison-label" style="font-size: 0.8em;">Estimate of Original (t=750)</div>
+                </div>
             </div>
         </div>
 
@@ -1449,7 +1521,7 @@
             </div>
         </div>
 
-        <h3>2.4-2.6 Class-Conditioned UNet</h3>
+        <h3>2.4 Class-Conditioned UNet</h3>
         <p>
             To improve generation quality and enable controlled generation, I extended the UNet to also condition 
             on digit class (0-9). The class information is encoded as a one-hot vector and injected into the network 
@@ -1457,11 +1529,16 @@
             during both training and sampling.
         </p>
 
+        <h3>2.5 Training the Class-Conditioned UNet</h3>
+        <p>
+            I trained the class-conditioned model with different optimization strategies to compare their effectiveness. 
+            During training, 10% of samples use unconditional generation (class dropout) to enable classifier-free guidance.
+        </p>
+
         <h4>Training with Learning Rate Scheduler</h4>
         <p>
             I trained the class-conditioned model with an exponential learning rate scheduler for 
-            improved convergence. During training, 10% of samples use unconditional generation (class dropout) 
-            to enable classifier-free guidance.
+            improved convergence.
         </p>
 
         <div style="text-align: center; margin: 30px auto; max-width: 600px;">
@@ -1469,33 +1546,6 @@
                 <img src="proj5/partB/2.5_scheduler_trloss.png" alt="Scheduler training loss" style="width: 100%;">
             </div>
             <div class="comparison-label">Training loss with exponential learning rate scheduler</div>
-        </div>
-
-        <h4>Sampling Results with Classifier-Free Guidance</h4>
-        <p>
-            Using classifier-free guidance with $lr = 0.01$, I generated 4 instances of each digit (0-9). The class 
-            conditioning allows for much more controlled and higher-quality generation compared to the time-only model.
-        </p>
-
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;">
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/partB/2.6_scheduler_epoch1.png" alt="Class-conditioned epoch 1" style="width: 100%;">
-                </div>
-                <div class="comparison-label">After 1 Epoch (with scheduler)</div>
-            </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/partB/2.6_scheduler_epoch5.png" alt="Class-conditioned epoch 5" style="width: 100%;">
-                </div>
-                <div class="comparison-label">After 5 Epochs (with scheduler)</div>
-            </div>
-            <div class="comparison-item">
-                <div class="image-container">
-                    <img src="proj5/partB/2.6_scheduler_epoch10.png" alt="Class-conditioned epoch 10" style="width: 100%;">
-                </div>
-                <div class="comparison-label">After 10 Epochs (with scheduler)</div>
-            </div>
         </div>
 
         <h4>Training Without Learning Rate Scheduler</h4>
@@ -1520,6 +1570,35 @@
             </div>
         </div>
 
+        <h3>2.6 Sampling from the Class-Conditioned UNet</h3>
+        <p>
+            Using classifier-free guidance with $\gamma = 0.01$, I generated 4 instances of each digit (0-9). The class 
+            conditioning allows for much more controlled and higher-quality generation compared to the time-only model.
+        </p>
+
+        <h4>Results with Learning Rate Scheduler</h4>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/partB/2.6_scheduler_epoch1.png" alt="Class-conditioned epoch 1" style="width: 100%;">
+                </div>
+                <div class="comparison-label">After 1 Epoch (with scheduler)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/partB/2.6_scheduler_epoch5.png" alt="Class-conditioned epoch 5" style="width: 100%;">
+                </div>
+                <div class="comparison-label">After 5 Epochs (with scheduler)</div>
+            </div>
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/partB/2.6_scheduler_epoch10.png" alt="Class-conditioned epoch 10" style="width: 100%;">
+                </div>
+                <div class="comparison-label">After 10 Epochs (with scheduler)</div>
+            </div>
+        </div>
+
+        <h4>Results without Learning Rate Scheduler</h4>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;">
             <div class="comparison-item">
                 <div class="image-container">
@@ -1542,8 +1621,9 @@
         </div>
 
         <p>
-            Even without the learning rate scheduler, by adjusting the initial learning rate, the model achieved 
-            recognizable digit generation by epoch 10.
+            Even without the learning rate scheduler, by adjusting the initial learning rate to $lr = 0.0001$, the model achieved 
+            recognizable digit generation by epoch 10. Both approaches demonstrate the effectiveness of class 
+            conditioning for controlled generation.
         </p>
 
         <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
