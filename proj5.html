@@ -2,6 +2,16 @@
 <html>
 <head>
     <title>Project 5 - CS180</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
     <style>
         * {
             margin: 0;
@@ -391,13 +401,26 @@
 
         <h3>1.1 Implementing the Forward Process</h3>
         <p>
-            The forward process adds noise to a clean image progressively. I implemented this using the equation 
-            x_t = √(α̅_t) * x_0 + √(1 - α̅_t) * ε, where ε is random noise sampled from a standard normal distribution.
+            The forward process adds noise to a clean image progressively. I implemented this using the equation:
         </p>
         
-        <p>Here's the Berkeley Campanile at different noise levels:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            $$x_t = \sqrt{\bar{\alpha}_t} \cdot x_0 + \sqrt{1 - \bar{\alpha}_t} \cdot \epsilon$$
+        </div>
         
-        <div class="triple-comparison">
+        <p>
+            where $\epsilon$ is random noise sampled from a standard normal distribution $\mathcal{N}(0, I)$.
+        </p>
+        
+        <p>Here's the Berkeley Campanile at different noise levels (timesteps):</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 30px 0;">
+            <div class="comparison-item">
+                <div class="image-container">
+                    <img src="proj5/part1/original_img.png" alt="Original Campanile" style="width: 100%;">
+                </div>
+                <div class="comparison-label">Original (t = 0)</div>
+            </div>
             <div class="comparison-item">
                 <div class="image-container">
                     <img src="proj5/part1/1.1_noise250.png" alt="Campanile with noise at t=250" style="width: 100%;">
@@ -475,8 +498,7 @@
 
         <h3>1.4 Iterative Denoising</h3>
         <p>
-            I implemented iterative denoising using strided timesteps (990, 960, 930, ..., 0 with stride 30). 
-            This approach progressively removes noise over multiple steps, producing much higher quality results 
+            I implemented iterative denoising which removes noise over multiple steps, producing much higher quality results 
             than single-step denoising.
         </p>
         
@@ -586,9 +608,8 @@
 
         <h3>1.6 Classifier-Free Guidance (CFG)</h3>
         <p>
-            To improve image quality, I implemented Classifier-Free Guidance with γ = 7. This technique computes 
-            both conditional and unconditional noise estimates, then combines them to produce higher quality images 
-            at the expense of some diversity.
+            To improve image quality, I implemented Classifier-Free Guidance with $\gamma = 7$. This technique computes 
+            both conditional and unconditional noise estimates, then combines them to produce higher quality images.
         </p>
         
         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;">
@@ -1217,7 +1238,7 @@
 
         <h3>1.2 Denoising Process Visualization</h3>
         <p>
-            To understand how noise affects the input images, I visualized the noising process using σ ∈ {0.25, 0.5, 0.75}. 
+            To understand how noise affects the input images, I visualized the noising process using $\sigma \in \{0.25, 0.5, 0.75\}$. 
             This shows how different noise levels progressively corrupt the original MNIST digits.
         </p>
 
@@ -1230,8 +1251,8 @@
 
         <h3>1.2.1 Training Results</h3>
         <p>
-            I trained the denoising UNet for 5 epochs using the MNIST dataset with σ = 0.5. The model learns to 
-            map noisy images x̃ back to clean images x. Here are the results after 1 and 5 epochs of training:
+            I trained the denoising UNet for 5 epochs using the MNIST dataset with $\sigma = 0.5$. The model learns to 
+            map noisy images $\tilde{x}$ back to clean images $x$. Here are the results after 1 and 5 epochs of training:
         </p>
 
         <div class="comparison" style="margin: 40px auto; max-width: 800px;">
