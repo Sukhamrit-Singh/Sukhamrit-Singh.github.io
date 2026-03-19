@@ -142,7 +142,7 @@
 
 <!-- ─── HERO ───────────────────────────────────────────────────────────── -->
 <section id="home" class="relative overflow-hidden min-h-[85vh] flex flex-col justify-center">
-  <canvas id="hero-canvas" class="bg-canvas"></canvas>
+  <canvas id="hero-canvas" class="bg-canvas" style="-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%);mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%)"></canvas>
   <div class="max-w-5xl mx-auto px-6 pt-20 pb-16 flex flex-col items-center text-center relative z-10">
     <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.05] mb-8">
       Multiplayer A<span class="hero-caret">
@@ -572,43 +572,89 @@ caretPath.rect(11, 4, 6, 1.5);
 caretPath.rect(13.25, 4, 1.5, 20);
 caretPath.rect(11, 22.5, 6, 1.5);
 
-// Hero — matrix-style falling carets
+// Hero — dense grid matrix with moving swarm noise + mouse interactivity
 (function heroAnim() {
   const canvas = document.getElementById('hero-canvas');
   const ctx = canvas.getContext('2d');
-  let particles = [], w = 0, h = 0, raf;
-  function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    w = r.width; h = r.height;
+  const COL_GAP = 18, ROW_GAP = 18;
+  let grid = [], cols = 0, rows = 0, w = 0, h = 0;
+  let mx = -9999, my = -9999;
+  const mouseRadius = 180, mouseRadiusSq = mouseRadius * mouseRadius;
+
+  function buildGrid() {
     const dpr = devicePixelRatio || 1;
+    w = canvas.parentElement.offsetWidth;
+    h = canvas.parentElement.offsetHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.max(60, Math.floor(w * h / 10000));
-    particles = Array.from({ length: count }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      vy: Math.random() * 0.3 + 0.1,
-      opacity: Math.random() * 0.08 + 0.04,
-      size: Math.random() > 0.5 ? 0.55 : 0.4,
-    }));
+    cols = Math.ceil(w / COL_GAP) + 2;
+    rows = Math.ceil(h / ROW_GAP) + 2;
+    grid = [];
+    for (let r = 0; r < rows; r++) {
+      const row = [];
+      for (let c = 0; c < cols; c++) {
+        row.push({ baseOpacity: Math.random() * 0.1 + 0.05, opacity: 0 });
+      }
+      grid.push(row);
+    }
   }
-  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  new ResizeObserver(buildGrid).observe(canvas.parentElement);
+  canvas.parentElement.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mx = e.clientX - rect.left; my = e.clientY - rect.top;
+  });
+  canvas.parentElement.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
+
+  let frame = 0;
   function draw() {
     ctx.clearRect(0, 0, w, h);
-    particles.forEach(p => {
-      p.y += p.vy;
-      if (p.y > h + 20) { p.y = -20; p.x = Math.random() * w; }
-      ctx.save();
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = 'hsla(220,50%,40%,1)';
-      ctx.translate(p.x, p.y);
-      ctx.scale(p.size, p.size);
-      ctx.translate(-14, -14);
-      ctx.fill(caretPath);
-      ctx.restore();
-    });
-    raf = requestAnimationFrame(draw);
+    frame++;
+    const t = frame * 0.015;
+    const sc = 0.12;
+    for (let r = 0; r < rows; r++) {
+      const py = r * ROW_GAP;
+      for (let c = 0; c < cols; c++) {
+        const cell = grid[r][c];
+        const px = c * COL_GAP;
+        const w1 = Math.sin(c * sc + t) * Math.cos(r * sc - t * 0.8);
+        const w2 = Math.sin(c * sc * 1.5 - t * 1.2 + r * sc * 0.5) * Math.cos(r * sc * 1.3 + t * 0.9);
+        const w3 = Math.sin(c * sc * 2.5 + t * 2) * Math.cos(r * sc * 2.5 - t * 1.5);
+        let noise = (w1 + w2 * 0.7 + w3 * 0.4) / 2.1;
+        noise = (noise + 1) / 2;
+        let swarmIntensity = noise > 0.55 ? (noise - 0.55) / 0.45 : 0;
+        let targetOpacity = cell.baseOpacity + swarmIntensity * 0.5;
+        const dx = px - mx, dy = py - my;
+        const distSq = dx * dx + dy * dy;
+        const isNearMouse = distSq < mouseRadiusSq;
+        if (isNearMouse) {
+          const dist = Math.sqrt(distSq);
+          const f = 1 - dist / mouseRadius;
+          const eased = f * f * f;
+          targetOpacity = Math.max(targetOpacity, cell.baseOpacity + eased * 0.7);
+        }
+        cell.opacity += (targetOpacity - cell.opacity) * 0.08;
+        if (cell.opacity < 0.01) continue;
+        const isSwarming = !isNearMouse && swarmIntensity > 0.1;
+        if ((isNearMouse && cell.opacity > 0.2) || isSwarming) {
+          const intensity = Math.min(1, (cell.opacity - cell.baseOpacity) / 0.5);
+          const hue = 200 + intensity * 15;
+          const sat = isNearMouse ? 20 + intensity * 40 : 15 + intensity * 25;
+          const light = 30 + intensity * 20;
+          ctx.fillStyle = `hsla(${hue},${sat}%,${light}%,${cell.opacity + 0.15})`;
+        } else {
+          ctx.fillStyle = `hsla(220,15%,25%,${cell.opacity})`;
+        }
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.scale(0.5, 0.5);
+        ctx.translate(-14, -14);
+        ctx.fill(caretPath);
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(draw);
   }
   draw();
 })();
