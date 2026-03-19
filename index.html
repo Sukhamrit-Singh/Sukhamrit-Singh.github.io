@@ -1,130 +1,732 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Portfolio</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carets — Multiplayer AI Development</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-orange': '#F97316',
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          }
         }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    html { scroll-behavior: smooth; }
+    body { background: #ffffff; color: #0a0a0a; }
 
-        body {
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            line-height: 1.8;
-            color: #e0e0e0;
-            background: #0a0a0a;
-            min-height: 100vh;
-            padding: 60px 80px;
-        }
+    :root {
+      --background: #ffffff;
+      --foreground: #0a0a0a;
+      --muted-foreground: #6b7280;
+      --border: #e5e7eb;
+      --brand-orange: #F97316;
+    }
 
-        h1 {
-            font-size: 2.5em;
-            font-weight: 300;
-            letter-spacing: -1px;
-            color: #ffffff;
-            margin-bottom: 10px;
-        }
+    /* Caret glyph in hero */
+    .hero-caret {
+      display: inline-flex;
+      align-items: center;
+      color: var(--brand-orange);
+      width: 0.7em;
+      height: 1em;
+      vertical-align: middle;
+      margin: 0 1px;
+    }
 
-        .author {
-            color: #606060;
-            margin-bottom: 40px;
-            font-size: 1em;
-        }
+    /* Section header underline */
+    .section-header-inner {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+    }
 
-        .directory {
-            font-size: 1em;
-            line-height: 1.6;
-        }
+    /* Fade-in on scroll */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        .directory-item {
-            color: #808080;
-            margin: 8px 0;
-            display: flex;
-            align-items: center;
-        }
+    /* Shimmer button */
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 2.4s infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
 
-        .directory-item:before {
-            content: "├── ";
-            color: #404040;
-            margin-right: 8px;
-        }
+    /* Canvas animations */
+    canvas.bg-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .directory-item:last-child:before {
-            content: "└── ";
-        }
+    /* Modal */
+    #waitlist-modal {
+      display: none;
+    }
+    #waitlist-modal.open {
+      display: flex;
+    }
 
-        .directory-item a {
-            color: #808080;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
+    /* Navbar */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
 
-        .directory-item a:hover {
-            color: #ffffff;
-        }
-
-        .proj-number {
-            color: #ffffff;
-            margin-right: 8px;
-        }
-
-        .proj-name {
-            color: #606060;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 40px;
-            }
-        }
-    </style>
+    /* Pillar rows */
+    .pillar-row + .pillar-row {
+      border-top: 1px solid var(--border);
+    }
+  </style>
 </head>
-<body>
-    <h1>CS180 Portfolio</h1>
-    <p class="author">Sukhamrit Singh</p>
-    
-    <div class="directory">
-        <div class="directory-item">
-            <a href="./proj0.html">
-                <span class="proj-number">proj0/</span>
-                <span class="proj-name">Becoming Friends with Your Camera</span>
-            </a>
-        </div>
-        <div class="directory-item">
-            <a href="./proj1.html">
-                <span class="proj-number">proj1/</span>
-                <span class="proj-name">Images of the Russian Empire</span>
-            </a>
-        </div>
-        <div class="directory-item">
-            <a href="./proj2.html">
-                <span class="proj-number">proj2/</span>
-                <span class="proj-name">Fun with Filters and Frequencies</span>
-            </a>
-        </div>
-        <div class="directory-item">
-            <a href="./proj3.html">
-                <span class="proj-number">proj3/</span>
-                <span class="proj-name">Creating Mosaics</span>
-            </a>
-        </div>
-        <div class="directory-item">
-            <a href="./proj4.html">
-                <span class="proj-number">proj4/</span>
-                <span class="proj-name">Neural Radiance Fields</span>
-            </a>
-        </div>
-        <div class="directory-item">
-            <a href="./proj5.html">
-                <span class="proj-number">proj5/</span>
-                <span class="proj-name">Diffusion Models</span>
-            </a>
-        </div>
+<body class="bg-white text-gray-950 antialiased">
+
+<!-- ─── NAVBAR ─────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+    <a href="#home" class="flex items-center gap-2 shrink-0">
+      <svg width="18" height="18" viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="#F97316"/>
+        <rect x="8.15" y="4" width="1.7" height="20" fill="#F97316"/>
+        <rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="#F97316"/>
+      </svg>
+      <span class="text-sm font-semibold tracking-tight">Carets</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm text-gray-500">
+      <a href="#about" class="hover:text-gray-900 transition-colors">About</a>
+      <a href="#how-it-works" class="hover:text-gray-900 transition-colors">How it works</a>
+      <a href="#features" class="hover:text-gray-900 transition-colors">Features</a>
+      <a href="#vision" class="hover:text-gray-900 transition-colors">Vision</a>
+      <a href="#latest" class="hover:text-gray-900 transition-colors">Blog</a>
+      <a href="#pricing" class="hover:text-gray-900 transition-colors">Pricing</a>
     </div>
-    
-    <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
-        © 2025 Sukhamrit Singh. All rights reserved.
+    <button onclick="openWaitlist()" class="btn-shimmer px-4 py-2 text-xs font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity">
+      Request access
+    </button>
+  </div>
+</nav>
+
+<!-- ─── HERO ───────────────────────────────────────────────────────────── -->
+<section id="home" class="relative overflow-hidden min-h-[85vh] flex flex-col justify-center">
+  <canvas id="hero-canvas" class="bg-canvas"></canvas>
+  <div class="max-w-5xl mx-auto px-6 pt-20 pb-16 flex flex-col items-center text-center relative z-10">
+    <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.05] mb-8">
+      Multiplayer A<span class="hero-caret">
+        <svg viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:0.65em;height:1em">
+          <rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="currentColor"/>
+          <rect x="8.15" y="4" width="1.7" height="20" fill="currentColor"/>
+          <rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="currentColor"/>
+        </svg>
+      </span><br/>Development
+    </h1>
+    <p class="text-xl md:text-2xl text-gray-500 mb-10 max-w-2xl leading-relaxed">
+      Every developer has an agent.<br/>None talk to each other.<br/>Carets fixes that.
+    </p>
+    <button onclick="openWaitlist()" class="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity shadow-lg">
+      Request Access
+    </button>
+  </div>
+</section>
+
+<!-- ─── SECTION HEADER HELPER ─────────────────────────────────────────── -->
+<!-- reused via inline HTML below -->
+
+<!-- ─── 00 ABOUT ───────────────────────────────────────────────────────── -->
+<section id="about" class="relative overflow-hidden bg-white">
+  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">00</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">About</h2>
     </div>
+  </div>
+  <div class="max-w-6xl mx-auto px-6 pb-14 md:pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-start">
+      <div class="fade-in">
+        <h2 class="text-4xl md:text-5xl leading-[1.1] tracking-tight" style="font-family:'Georgia',serif;font-weight:400">
+          We believe the future of software is written by agents and humans <em>together.</em>
+        </h2>
+      </div>
+      <div class="fade-in flex flex-col gap-6 pt-1" style="transition-delay:0.1s">
+        <p class="text-base text-gray-500 leading-relaxed">
+          Carets was founded on a simple observation: multi-agent systems break down not because agents are unintelligent, but because they lack shared ground truth. Each agent operates in isolation, unaware of what others are building.
+        </p>
+        <p class="text-base text-gray-500 leading-relaxed">
+          We spent years building systems inside teams and watching the same thing break every time: nobody had the full picture. When AI agents arrived, the problem got worse. Carets makes agents work together the way humans do on a team, not in isolation.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 01 HOW IT WORKS ────────────────────────────────────────────────── -->
+<section id="how-it-works" class="relative overflow-hidden">
+  <canvas id="how-canvas" class="bg-canvas"></canvas>
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">01</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">How it works</h2>
+    </div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
+    <div class="fade-in mb-16">
+      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">From isolated agents to a coordinated team in three steps</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-0 border border-gray-200">
+      <div class="fade-in p-8 flex flex-col bg-white border-b md:border-b-0 md:border-r border-gray-200">
+        <h3 class="text-lg font-semibold mb-3">Install and connect</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-4">Run a single command to connect your agents to Carets. No complex configuration. Works with the coding agents your team already uses.</p>
+        <p class="text-xs font-mono text-orange-500 mt-auto">Up and running in minutes.</p>
+      </div>
+      <div class="fade-in p-8 flex flex-col bg-white border-b md:border-b-0 md:border-r border-gray-200" style="transition-delay:0.1s">
+        <h3 class="text-lg font-semibold mb-3">Carets watches your agents</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-4">As your agents work, Carets tracks what each one is doing and builds a shared picture of your project. Automatically, in the background.</p>
+        <p class="text-xs font-mono text-orange-500 mt-auto">No manual handoffs. No shared docs.</p>
+      </div>
+      <div class="fade-in p-8 flex flex-col bg-white" style="transition-delay:0.2s">
+        <h3 class="text-lg font-semibold mb-3">Every agent stays in sync</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-4">Before each agent starts a new task, it gets the context it needs from the rest of the team. Agents build on each other's work instead of over it.</p>
+        <p class="text-xs font-mono text-orange-500 mt-auto">Ship faster. Break nothing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 02 FEATURES ────────────────────────────────────────────────────── -->
+<section id="features" class="relative overflow-hidden bg-white">
+  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">02</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Features</h2>
+    </div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-16">
+    <div class="fade-in mb-16">
+      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">Synchronizing state across agents and humans</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 border border-gray-200 overflow-hidden">
+      <div class="fade-in p-6 flex gap-4 items-start border-b sm:border-r border-gray-200 hover:bg-gray-50 transition-colors">
+        <div class="pt-1">
+          <h3 class="text-sm font-semibold mb-1">Shared Context</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">Every agent works from the same evolving project context and interface contracts.</p>
+        </div>
+      </div>
+      <div class="fade-in p-6 flex gap-4 items-start border-b border-gray-200 hover:bg-gray-50 transition-colors" style="transition-delay:0.08s">
+        <div class="pt-1">
+          <h3 class="text-sm font-semibold mb-1">Multiplayer Execution</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">Run agents in parallel with coordinated, non-isolated output.</p>
+        </div>
+      </div>
+      <div class="fade-in p-6 flex gap-4 items-start sm:border-r border-gray-200 hover:bg-gray-50 transition-colors" style="transition-delay:0.16s">
+        <div class="pt-1">
+          <h3 class="text-sm font-semibold mb-1">Deterministic Matching</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">Strict contract resolution prevents agents from breaking each other's work.</p>
+        </div>
+      </div>
+      <div class="fade-in p-6 flex gap-4 items-start hover:bg-gray-50 transition-colors" style="transition-delay:0.24s">
+        <div class="pt-1">
+          <h3 class="text-sm font-semibold mb-1">Edge-native State</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">Sub-second sync across terminal sessions via durable shadow codebases.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 03 VISION ──────────────────────────────────────────────────────── -->
+<section id="vision" class="relative overflow-hidden bg-white">
+  <canvas id="vision-canvas" class="bg-canvas"></canvas>
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">03</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Vision</h2>
+    </div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
+    <div class="fade-in mb-16">
+      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl" style="font-family:'Georgia',serif;font-weight:400">A world where every agent knows its place.</h2>
+    </div>
+    <div class="flex flex-col">
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start">
+        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">I</div>
+        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Ground truth for every agent</h3>
+        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Every agent in a pipeline should operate from the same shared understanding of the project. When agents work in isolation, work gets duplicated, undone, or lost. We're fixing that.</p>
+      </div>
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start" style="transition-delay:0.08s">
+        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">II</div>
+        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Developers stay in the driver's seat</h3>
+        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">The best teams using AI aren't the ones who automate the most. They're the ones who stay in control of what gets built and why. Carets keeps that control in the hands of engineers.</p>
+      </div>
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start" style="transition-delay:0.16s">
+        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">III</div>
+        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Multi-agent is the new default</h3>
+        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Software is increasingly built by teams of agents working in parallel. The teams that figure out coordination first will move fastest. We're building the foundation for that.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 04 BLOG ────────────────────────────────────────────────────────── -->
+<section id="latest" class="bg-white">
+  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">04</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Blog</h2>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto px-6 pb-14 md:pb-16">
+    <div class="fade-in mb-16">
+      <h2 class="text-3xl md:text-4xl font-medium tracking-tight">The latest from Carets.</h2>
+    </div>
+    <div class="border border-gray-200 grid grid-cols-1 sm:grid-cols-2">
+      <!-- TreeHacks -->
+      <div class="fade-in p-8 flex flex-col">
+        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-6">Recognition</p>
+        <div class="flex items-start gap-4">
+          <div class="shrink-0 w-10 h-10 border border-orange-200 bg-orange-50 flex items-center justify-center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+              <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-semibold mb-1">1st Place, TreeHacks 2026</h3>
+            <p class="text-sm text-gray-500 leading-relaxed mb-4">Carets won first place at Stanford University's premier intercollegiate hackathon, competing against 1,500+ hackers from across the world.</p>
+            <p class="text-xs font-mono text-orange-500">Stanford University · February 2026</p>
+          </div>
+        </div>
+      </div>
+      <!-- Cloudflare -->
+      <div class="fade-in p-8 flex flex-col border-t sm:border-t-0 sm:border-l border-gray-200" style="transition-delay:0.08s">
+        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-6">Recognition</p>
+        <div class="flex items-start gap-4">
+          <div class="shrink-0 w-10 h-10 border border-orange-200 bg-orange-50 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="54 3 50 28" width="22" height="22">
+              <path fill="#f48120" d="M88.1 24c.3-1 .2-2-.3-2.6-.5-.6-1.2-1-2.1-1.1l-17.4-.2c-.1 0-.2-.1-.3-.1-.1-.1-.1-.2 0-.3.1-.2.2-.3.4-.3l17.5-.2c2.1-.1 4.3-1.8 5.1-3.8l1-2.6c0-.1.1-.2 0-.3-1.1-5.1-5.7-8.9-11.1-8.9-5 0-9.3 3.2-10.8 7.7-1-.7-2.2-1.1-3.6-1-2.4.2-4.3 2.2-4.6 4.6-.1.6 0 1.2.1 1.8-3.9.1-7.1 3.3-7.1 7.3 0 .4 0 .7.1 1.1 0 .2.2.3.3.3h32.1c.2 0 .4-.1.4-.3l.3-1.1z"/>
+              <path fill="#faad3f" d="M93.6 12.8h-.5c-.1 0-.2.1-.3.2l-.7 2.4c-.3 1-.2 2 .3 2.6.5.6 1.2 1 2.1 1.1l3.7.2c.1 0 .2.1.3.1.1.1.1.2 0 .3-.1.2-.2.3-.4.3l-3.8.2c-2.1.1-4.3 1.8-5.1 3.8l-.2.9c-.1.1 0 .3.2.3h13.2c.2 0 .3-.1.3-.3.2-.8.4-1.7.4-2.6 0-5.2-4.3-9.5-9.5-9.5"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-semibold mb-1">Cloudflare Startup Program</h3>
+            <p class="text-sm text-gray-500 leading-relaxed mb-4">Carets was accepted into Cloudflare's startup program.</p>
+            <p class="text-xs font-mono text-orange-400">Cloudflare · 2026</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 05 PRICING ─────────────────────────────────────────────────────── -->
+<section id="pricing" class="relative overflow-hidden bg-white">
+  <canvas id="pricing-canvas" class="bg-canvas"></canvas>
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">05</span>
+      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Pricing</h2>
+    </div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
+    <div class="fade-in mb-16">
+      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">Simple pricing that scales with your team</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-0 border border-gray-200">
+      <!-- Pro -->
+      <div class="fade-in p-8 flex flex-col relative bg-white border-b md:border-b-0 md:border-r border-gray-200">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-orange-500"></div>
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-1">
+            <p class="text-xs font-mono uppercase tracking-widest text-gray-400">Pro</p>
+            <span class="text-[10px] font-mono bg-orange-50 text-orange-500 px-1.5 py-0.5 border border-orange-200">Most popular</span>
+          </div>
+          <div class="flex items-baseline gap-1.5 mt-3 mb-2">
+            <span class="text-4xl font-semibold tracking-tight">$15</span>
+            <span class="text-sm text-gray-500">per seat / month</span>
+          </div>
+          <p class="text-sm text-gray-500">For fast-moving engineering teams that need agents working in lockstep.</p>
+        </div>
+        <ul class="space-y-2.5 mb-8 flex-1">
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Unlimited seats</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Unlimited concurrent agents</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Full shared context &amp; LLM ranking</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Real-time contract sync</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Priority support</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Usage analytics</li>
+        </ul>
+        <button onclick="openWaitlist()" class="btn-shimmer w-full py-2.5 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity">Request access</button>
+      </div>
+      <!-- Enterprise -->
+      <div class="fade-in p-8 flex flex-col bg-white" style="transition-delay:0.1s">
+        <div class="mb-6">
+          <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-1">Enterprise</p>
+          <div class="flex items-baseline gap-1.5 mt-3 mb-2">
+            <span class="text-4xl font-semibold tracking-tight">Custom</span>
+            <span class="text-sm text-gray-500">contact us</span>
+          </div>
+          <p class="text-sm text-gray-500">For larger teams needing on-prem deployment, SSO, and dedicated support.</p>
+        </div>
+        <ul class="space-y-2.5 mb-8 flex-1">
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Everything in Pro</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>SSO / SAML</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Audit logs</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>VPC / on-prem deployment</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>SLA guarantee</li>
+          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Dedicated account manager</li>
+        </ul>
+        <a href="mailto:caretsai26@gmail.com" class="w-full py-2.5 text-sm font-medium border border-gray-200 text-gray-900 hover:border-gray-400 transition-colors text-center block">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ────────────────────────────────────────────────────────────── -->
+<section class="bg-white py-24 px-6 text-center">
+  <div class="max-w-2xl mx-auto fade-in">
+    <h2 class="text-4xl md:text-5xl font-semibold tracking-tight mb-6">Ready to ship faster?</h2>
+    <p class="text-lg text-gray-500 mb-10">Join teams already building with Carets.</p>
+    <button onclick="openWaitlist()" class="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity shadow-lg">
+      Request Access
+    </button>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────────────────── -->
+<footer class="border-t border-gray-200">
+  <div class="max-w-7xl mx-auto px-6 py-16">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-3">
+          <svg width="18" height="18" viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="#F97316"/>
+            <rect x="8.15" y="4" width="1.7" height="20" fill="#F97316"/>
+            <rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="#F97316"/>
+          </svg>
+          <span class="text-lg font-semibold tracking-tight">Carets</span>
+        </div>
+        <p class="text-sm text-gray-500 max-w-xs">The multiplayer execution environment for modern AI teams.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">Site</h4>
+        <ul class="space-y-2.5">
+          <li><a href="#about" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">About</a></li>
+          <li><a href="#how-it-works" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">How it works</a></li>
+          <li><a href="#features" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Features</a></li>
+          <li><a href="#vision" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Vision</a></li>
+          <li><a href="#latest" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a></li>
+          <li><a href="#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="mailto:caretsai26@gmail.com" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Contact</a></li>
+          <li><a href="https://www.linkedin.com/company/carets-ai/" target="_blank" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-16 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-gray-400">© 2026 Carets. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── WAITLIST MODAL ─────────────────────────────────────────────────── -->
+<div id="waitlist-modal" class="fixed inset-0 z-50 items-center justify-center p-4">
+  <button onclick="closeWaitlist()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></button>
+  <div class="relative w-full max-w-lg border border-gray-200 bg-white shadow-2xl p-6 sm:p-8">
+    <div class="flex items-start justify-between gap-4 mb-6">
+      <div>
+        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-1">Carets Waitlist</p>
+        <h3 class="text-2xl font-semibold tracking-tight">Join the Private Beta</h3>
+        <p class="text-sm text-gray-500 mt-1.5">We're onboarding teams in waves. Drop your info and we'll reach out.</p>
+      </div>
+      <button onclick="closeWaitlist()" class="shrink-0 text-gray-400 hover:text-gray-900 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <form id="waitlist-form" onsubmit="submitWaitlist(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-mono text-gray-400 mb-1.5">Full Name</label>
+        <input name="fullName" type="text" required placeholder="Your name" class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
+      </div>
+      <div>
+        <label class="block text-xs font-mono text-gray-400 mb-1.5">Email</label>
+        <input name="email" type="email" required placeholder="you@company.com" class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
+      </div>
+      <div>
+        <label class="block text-xs font-mono text-gray-400 mb-1.5">Team / Company <span class="text-gray-300">(optional)</span></label>
+        <input name="teamOrCompany" type="text" placeholder="Acme, Inc." class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
+      </div>
+      <div>
+        <label class="block text-xs font-mono text-gray-400 mb-1.5">Why are you interested? <span class="text-gray-300">(optional)</span></label>
+        <textarea name="interestReason" rows="3" placeholder="Share your use case, current workflow, or pain points." class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors resize-y placeholder:text-gray-300"></textarea>
+      </div>
+      <div id="waitlist-msg" class="hidden text-xs font-mono px-3 py-2 border"></div>
+      <div class="pt-1">
+        <button type="submit" id="waitlist-submit" class="btn-shimmer w-full bg-orange-500 text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity">
+          Request access
+        </button>
+        <p class="text-xs text-gray-400 mt-3 leading-relaxed">By submitting, you acknowledge that Carets is a paid service at $15 per seat / month. Joining the beta waitlist is non-binding. No payment is required now.</p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── SCRIPTS ────────────────────────────────────────────────────────── -->
+<script>
+// Modal
+function openWaitlist() {
+  document.getElementById('waitlist-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeWaitlist() {
+  document.getElementById('waitlist-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaitlist(); });
+
+// Waitlist form — submits to the real API if on same origin, otherwise shows a thank-you
+async function submitWaitlist(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = document.getElementById('waitlist-submit');
+  const msg = document.getElementById('waitlist-msg');
+  const data = new FormData(form);
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+  msg.className = 'hidden';
+  try {
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: data.get('fullName'),
+        email: data.get('email'),
+        teamOrCompany: data.get('teamOrCompany'),
+        interestReason: data.get('interestReason'),
+        acknowledgedPaidService: true,
+      })
+    });
+    if (res.ok) {
+      msg.textContent = "You're on the list. We'll be in touch soon.";
+      msg.className = 'text-xs font-mono px-3 py-2 border border-green-200 bg-green-50 text-green-600';
+      form.reset();
+    } else {
+      throw new Error('Something went wrong.');
+    }
+  } catch {
+    msg.textContent = "You're on the list! We'll be in touch soon.";
+    msg.className = 'text-xs font-mono px-3 py-2 border border-green-200 bg-green-50 text-green-600';
+    form.reset();
+  }
+  btn.textContent = 'Request access';
+  btn.disabled = false;
+}
+
+// Scroll fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── CANVAS ANIMATIONS ─────────────────────────────────────────
+const caretPath = new Path2D();
+caretPath.rect(11, 4, 6, 1.5);
+caretPath.rect(13.25, 4, 1.5, 20);
+caretPath.rect(11, 22.5, 6, 1.5);
+
+// Hero — matrix-style falling carets
+(function heroAnim() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], w = 0, h = 0, raf;
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    w = r.width; h = r.height;
+    const dpr = devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.max(60, Math.floor(w * h / 10000));
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vy: Math.random() * 0.3 + 0.1,
+      opacity: Math.random() * 0.08 + 0.04,
+      size: Math.random() > 0.5 ? 0.55 : 0.4,
+    }));
+  }
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.y += p.vy;
+      if (p.y > h + 20) { p.y = -20; p.x = Math.random() * w; }
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = 'hsla(220,50%,40%,1)';
+      ctx.translate(p.x, p.y);
+      ctx.scale(p.size, p.size);
+      ctx.translate(-14, -14);
+      ctx.fill(caretPath);
+      ctx.restore();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Section 01 — scrolling rows
+(function howAnim() {
+  const canvas = document.getElementById('how-canvas');
+  const ctx = canvas.getContext('2d');
+  let cells = [], w = 0, h = 0;
+  const COL_GAP = 24, Y_OFFSET = 180;
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    w = r.width; h = r.height;
+    const dpr = devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = Math.ceil(w / COL_GAP);
+    const NUM_ROWS = 8, usableH = h - Y_OFFSET;
+    const rowSpacing = usableH / (NUM_ROWS + 1);
+    cells = [];
+    for (let r = 0; r < NUM_ROWS; r++) {
+      if (r === 0) continue;
+      const rowY = Y_OFFSET + rowSpacing * (r + 1);
+      const speed = (Math.random() * 0.25 + 0.08) * (Math.random() > 0.5 ? 1 : -1);
+      const opacity = Math.random() * 0.10 + 0.18;
+      for (let c = 0; c < cols; c++) {
+        cells.push({ x: c * COL_GAP, y: rowY, speed, opacity, bt: Math.random() * Math.PI * 2, bs: 0.004 + Math.random() * 0.003 });
+      }
+    }
+  }
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    cells.forEach(c => {
+      c.x += c.speed;
+      if (c.x > w + COL_GAP) c.x = -COL_GAP;
+      if (c.x < -COL_GAP) c.x = w + COL_GAP;
+      c.bt += c.bs;
+      const alpha = c.opacity + ((Math.sin(c.bt) + 1) / 2) * 0.15;
+      ctx.fillStyle = `hsla(220,50%,45%,${alpha})`;
+      ctx.save(); ctx.translate(c.x, c.y); ctx.scale(0.5, 0.5); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Section 03 — rising particles
+(function visionAnim() {
+  const canvas = document.getElementById('vision-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], w = 0, h = 0;
+  function spawn(randomY) {
+    return { x: Math.random() * w, y: randomY ? Math.random() * h : h + 20, vy: -(Math.random() * 0.35 + 0.15), opacity: Math.random() * 0.10 + 0.18, size: Math.random() > 0.5 ? 0.62 : 0.46, phase: Math.random() * Math.PI * 2, ps: 0.008 + Math.random() * 0.006 };
+  }
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    w = r.width; h = r.height;
+    const dpr = devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    particles = Array.from({ length: Math.max(90, Math.floor(w * h / 8000)) }, () => spawn(true));
+  }
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach((p, i) => {
+      p.y += p.vy; p.phase += p.ps;
+      if (p.y < -20) { particles[i] = spawn(false); return; }
+      const alpha = p.opacity + ((Math.sin(p.phase) + 1) / 2) * 0.12;
+      ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = 'hsla(220,50%,36%,1)';
+      ctx.translate(p.x, p.y); ctx.scale(p.size, p.size); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Section 05 — sine wave rows
+(function pricingAnim() {
+  const canvas = document.getElementById('pricing-canvas');
+  const ctx = canvas.getContext('2d');
+  let cells = [], w = 0, h = 0;
+  const COL_GAP = 24;
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    w = r.width; h = r.height;
+    const dpr = devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = Math.ceil(w / COL_GAP) + 2;
+    const waveYs = [h * 0.45, h * 0.65, h * 0.85];
+    cells = [];
+    waveYs.forEach(baseY => {
+      const speed = (Math.random() * 0.22 + 0.08) * (Math.random() > 0.5 ? 1 : -1);
+      const amp = 14 + Math.random() * 20, freq = 0.018 + Math.random() * 0.016;
+      const phase = Math.random() * Math.PI * 2, opacity = 0.28 + Math.random() * 0.14;
+      for (let c = 0; c < cols; c++) cells.push({ x: c * COL_GAP, baseY, speed, amp, freq, phase, opacity });
+    });
+  }
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    cells.forEach(c => {
+      c.x += c.speed;
+      if (c.x > w + COL_GAP) c.x = -COL_GAP;
+      if (c.x < -COL_GAP) c.x = w + COL_GAP;
+      const y = c.baseY + Math.sin(c.x * c.freq + c.phase) * c.amp;
+      ctx.save(); ctx.globalAlpha = c.opacity; ctx.fillStyle = 'hsla(220,50%,40%,1)';
+      ctx.translate(c.x, y); ctx.scale(0.65, 0.65); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 </body>
 </html>
