@@ -34,16 +34,36 @@
       --brand-orange: #F97316;
     }
 
-    /* Caret glyph in hero */
-    .hero-caret {
-      display: inline-flex;
-      align-items: center;
-      color: var(--brand-orange);
-      width: 0.7em;
-      height: 1em;
-      vertical-align: middle;
-      margin: 0 1px;
+    /* Caret glyph in hero — blinking cursor */
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
     }
+    .hero-logo-caret {
+      display: inline-flex;
+      width: 0.42em;
+      height: 0.74em;
+      margin-left: 0.008em;
+      vertical-align: -0.01em;
+      color: #ffffff;
+      animation: blink 1s step-end infinite;
+    }
+    .hero-logo-caret svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Feature icon animations */
+    @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.3);opacity:1} }
+    @keyframes travel { 0%{opacity:0;transform:translate(-50%,-50%) translate(0,0) scale(.5)} 50%{opacity:1;transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(.5)} }
+    @keyframes line-pulse { 0%,100%{opacity:.2} 50%{opacity:.7} }
+    @keyframes slide-dot { 0%{transform:translateX(-8px)} 100%{transform:translateX(48px)} }
+    @keyframes fade-lane { 0%,100%{opacity:0} 15%,80%{opacity:1} }
+    @keyframes slide-left { 0%{transform:translateX(-14px)} 35%,75%{transform:translateX(-5px)} 100%{transform:translateX(-14px)} }
+    @keyframes slide-right { 0%{transform:translateX(14px)} 35%,75%{transform:translateX(5px)} 100%{transform:translateX(14px)} }
+    @keyframes join-flash { 0%,33%,54%,100%{opacity:0;transform:scaleY(0)} 42%{opacity:1;transform:scaleY(1)} }
+    @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
 
     /* Section header underline */
     .section-header-inner {
@@ -145,13 +165,7 @@
   <canvas id="hero-canvas" class="bg-canvas" style="-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%);mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%)"></canvas>
   <div class="max-w-5xl mx-auto px-6 pt-20 pb-16 flex flex-col items-center text-center relative z-10">
     <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.05] mb-8">
-      Multiplayer A<span class="hero-caret">
-        <svg viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:0.65em;height:1em">
-          <rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="currentColor"/>
-          <rect x="8.15" y="4" width="1.7" height="20" fill="currentColor"/>
-          <rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="currentColor"/>
-        </svg>
-      </span><br/>Development
+      <span class="whitespace-nowrap">Multiplayer A<span class="hero-logo-caret" aria-hidden="true"><svg viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="currentColor"/><rect x="8.15" y="4" width="1.7" height="20" fill="currentColor"/><rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="currentColor"/></svg></span></span><br/>Development
     </h1>
     <p class="text-xl md:text-2xl text-gray-500 mb-10 max-w-2xl leading-relaxed">
       Every developer has an agent.<br/>None talk to each other.<br/>Carets fixes that.
@@ -237,38 +251,106 @@
     <div class="fade-in mb-16">
       <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">Synchronizing state across agents and humans</h2>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 border border-gray-200 overflow-hidden">
-      <div class="fade-in p-6 flex gap-4 items-start border-b sm:border-r border-gray-200 hover:bg-gray-50 transition-colors">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-200 overflow-hidden border border-gray-200">
+
+      <!-- Shared Context -->
+      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors">
+        <!-- Icon: center dot + 3 orbiting nodes with traveling pulses -->
+        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+          <!-- center dot -->
+          <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#3b82f6;z-index:10;animation:pulse-dot 4s ease-in-out infinite"></div>
+          <!-- node 1: angle -60 -->
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:-60deg;animation:line-pulse 4s infinite 0s"></div>
+            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:9px;--ty:-15.6px;animation:travel 2.5s ease-in-out infinite 0s"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;left:calc(50% + 9px - 4px);top:calc(50% - 15.6px - 4px)"></div>
+          </div>
+          <!-- node 2: angle 60 -->
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:60deg;animation:line-pulse 4s infinite 0.7s"></div>
+            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(249,115,22,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:9px;--ty:15.6px;animation:travel 2.5s ease-in-out infinite 0.8s"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#f97316;left:calc(50% + 9px - 4px);top:calc(50% + 15.6px - 4px)"></div>
+          </div>
+          <!-- node 3: angle 180 -->
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:180deg;animation:line-pulse 4s infinite 1.4s"></div>
+            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(100,100,100,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:-18px;--ty:0px;animation:travel 2.5s ease-in-out infinite 1.6s"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(10,10,10,.5);left:calc(50% - 18px - 4px);top:calc(50% - 4px)"></div>
+          </div>
+        </div>
         <div class="pt-1">
           <h3 class="text-sm font-semibold mb-1">Shared Context</h3>
           <p class="text-xs text-gray-500 leading-relaxed">Every agent works from the same evolving project context and interface contracts.</p>
         </div>
       </div>
-      <div class="fade-in p-6 flex gap-4 items-start border-b border-gray-200 hover:bg-gray-50 transition-colors" style="transition-delay:0.08s">
+
+      <!-- Multiplayer Execution -->
+      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.08s">
+        <div class="shrink-0 w-14 h-14 relative flex flex-col justify-center gap-[6px] px-1 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+          <!-- lane 1 -->
+          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 0s">
+            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 0s"></div>
+          </div>
+          <!-- lane 2 -->
+          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 0.5s">
+            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#f97316;top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 0.5s"></div>
+          </div>
+          <!-- lane 3 -->
+          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 1.0s">
+            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
+            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(10,10,10,.5);top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 1.0s"></div>
+          </div>
+        </div>
         <div class="pt-1">
           <h3 class="text-sm font-semibold mb-1">Multiplayer Execution</h3>
           <p class="text-xs text-gray-500 leading-relaxed">Run agents in parallel with coordinated, non-isolated output.</p>
         </div>
       </div>
-      <div class="fade-in p-6 flex gap-4 items-start sm:border-r border-gray-200 hover:bg-gray-50 transition-colors" style="transition-delay:0.16s">
+
+      <!-- Deterministic Matching -->
+      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.16s">
+        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+          <!-- left block -->
+          <div style="position:absolute;width:16px;height:20px;background:rgba(59,130,246,.8);border-radius:4px;z-index:10;animation:slide-left 4s infinite"></div>
+          <!-- right block -->
+          <div style="position:absolute;width:16px;height:20px;background:rgba(249,115,22,.8);border-radius:4px;z-index:10;animation:slide-right 4s infinite"></div>
+          <!-- join flash -->
+          <div style="position:absolute;width:1px;height:20px;background:rgba(10,10,10,.4);animation:join-flash 4s infinite"></div>
+        </div>
         <div class="pt-1">
           <h3 class="text-sm font-semibold mb-1">Deterministic Matching</h3>
           <p class="text-xs text-gray-500 leading-relaxed">Strict contract resolution prevents agents from breaking each other's work.</p>
         </div>
       </div>
-      <div class="fade-in p-6 flex gap-4 items-start hover:bg-gray-50 transition-colors" style="transition-delay:0.24s">
+
+      <!-- Edge-native State -->
+      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.24s">
+        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+          <!-- spinning refresh icon -->
+          <div style="color:#3b82f6;animation:spin 10s linear infinite">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+          </div>
+        </div>
         <div class="pt-1">
           <h3 class="text-sm font-semibold mb-1">Edge-native State</h3>
           <p class="text-xs text-gray-500 leading-relaxed">Sub-second sync across terminal sessions via durable shadow codebases.</p>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <!-- ─── 03 VISION ──────────────────────────────────────────────────────── -->
-<section id="vision" class="relative overflow-hidden bg-white">
-  <canvas id="vision-canvas" class="bg-canvas"></canvas>
+<section id="vision" class="relative overflow-hidden bg-background">
+  <canvas id="vision-canvas" class="bg-canvas" style="-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%)"></canvas>
   <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
     <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
       <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">03</span>
@@ -280,18 +362,18 @@
       <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl" style="font-family:'Georgia',serif;font-weight:400">A world where every agent knows its place.</h2>
     </div>
     <div class="flex flex-col">
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start">
-        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">I</div>
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
+        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">I</div>
         <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Ground truth for every agent</h3>
         <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Every agent in a pipeline should operate from the same shared understanding of the project. When agents work in isolation, work gets duplicated, undone, or lost. We're fixing that.</p>
       </div>
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start" style="transition-delay:0.08s">
-        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">II</div>
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="transition-delay:0.08s;background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
+        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">II</div>
         <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Developers stay in the driver's seat</h3>
         <p class="text-sm text-gray-500 leading-relaxed max-w-sm">The best teams using AI aren't the ones who automate the most. They're the ones who stay in control of what gets built and why. Carets keeps that control in the hands of engineers.</p>
       </div>
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start" style="transition-delay:0.16s">
-        <div class="text-xl text-gray-200 select-none" style="font-family:'Georgia',serif">III</div>
+      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="transition-delay:0.16s;background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
+        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">III</div>
         <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Multi-agent is the new default</h3>
         <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Software is increasingly built by teams of agents working in parallel. The teams that figure out coordination first will move fastest. We're building the foundation for that.</p>
       </div>
