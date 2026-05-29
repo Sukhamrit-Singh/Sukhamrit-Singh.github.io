@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+            min-height: 100vh;
+            padding: 60px 80px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .author {
+            color: #606060;
+            margin-bottom: 40px;
+            font-size: 1em;
+        }
+
+        .directory {
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .directory-item {
+            color: #808080;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .directory-item:before {
+            content: "├── ";
+            color: #404040;
+            margin-right: 8px;
+        }
+
+        .directory-item:last-child:before {
+            content: "└── ";
+        }
+
+        .directory-item a {
+            color: #808080;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .directory-item a:hover {
+            color: #ffffff;
+        }
+
+        .proj-number {
+            color: #ffffff;
+            margin-right: 8px;
+        }
+
+        .proj-name {
+            color: #606060;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <p class="author" style="margin-bottom: 24px;"><a href="./index.html" style="color:#606060; text-decoration:none;">← home</a></p>
+    <h1>CS180 Portfolio</h1>
+    <p class="author">Computer Vision &amp; Computational Photography, Sukhamrit Singh</p>
+    
+    <div class="directory">
+        <div class="directory-item">
+            <a href="./proj0.html">
+                <span class="proj-number">proj0/</span>
+                <span class="proj-name">Becoming Friends with Your Camera</span>
+            </a>
+        </div>
+        <div class="directory-item">
+            <a href="./proj1.html">
+                <span class="proj-number">proj1/</span>
+                <span class="proj-name">Images of the Russian Empire</span>
+            </a>
+        </div>
+        <div class="directory-item">
+            <a href="./proj2.html">
+                <span class="proj-number">proj2/</span>
+                <span class="proj-name">Fun with Filters and Frequencies</span>
+            </a>
+        </div>
+        <div class="directory-item">
+            <a href="./proj3.html">
+                <span class="proj-number">proj3/</span>
+                <span class="proj-name">Creating Mosaics</span>
+            </a>
+        </div>
+        <div class="directory-item">
+            <a href="./proj4.html">
+                <span class="proj-number">proj4/</span>
+                <span class="proj-name">Neural Radiance Fields</span>
+            </a>
+        </div>
+        <div class="directory-item">
+            <a href="./proj5.html">
+                <span class="proj-number">proj5/</span>
+                <span class="proj-name">Diffusion Models</span>
+            </a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; color: #606060; margin-top: 80px; padding: 40px 0; border-top: 1px solid #2a2a2a;">
+        © 2025 Sukhamrit Singh. All rights reserved.
+    </div>
+</body>
+</html>

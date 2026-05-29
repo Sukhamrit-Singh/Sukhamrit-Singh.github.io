@@ -1,894 +1,626 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carets — Multiplayer AI Development</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'brand-orange': '#F97316',
-          },
-          fontFamily: {
-            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sukhamrit Singh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
-    }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    * { font-family: 'Inter', sans-serif; }
-    html { scroll-behavior: smooth; }
-    body { background: #ffffff; color: #0a0a0a; }
 
-    :root {
-      --background: #ffffff;
-      --foreground: #0a0a0a;
-      --muted-foreground: #6b7280;
-      --border: #e5e7eb;
-      --brand-orange: #F97316;
-    }
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
 
-    /* Caret glyph in hero — blinking cursor */
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-    .hero-logo-caret {
-      display: inline-flex;
-      width: 0.42em;
-      height: 0.74em;
-      margin-left: 0.008em;
-      vertical-align: -0.01em;
-      color: #0a0a0a;
-      animation: blink 1s step-end infinite;
-    }
-    .hero-logo-caret svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+        body {
+            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            color: #e0e0e0;
+            background: #0a0a0a;
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.01em;
+        }
 
-    /* Feature icon animations */
-    @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.3);opacity:1} }
-    @keyframes travel { 0%{opacity:0;transform:translate(-50%,-50%) translate(0,0) scale(.5)} 50%{opacity:1;transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(.5)} }
-    @keyframes line-pulse { 0%,100%{opacity:.2} 50%{opacity:.7} }
-    @keyframes slide-dot { 0%{transform:translateX(-8px)} 100%{transform:translateX(48px)} }
-    @keyframes fade-lane { 0%,100%{opacity:0} 15%,80%{opacity:1} }
-    @keyframes slide-left { 0%{transform:translateX(-14px)} 35%,75%{transform:translateX(-5px)} 100%{transform:translateX(-14px)} }
-    @keyframes slide-right { 0%{transform:translateX(14px)} 35%,75%{transform:translateX(5px)} 100%{transform:translateX(14px)} }
-    @keyframes join-flash { 0%,33%,54%,100%{opacity:0;transform:scaleY(0)} 42%{opacity:1;transform:scaleY(1)} }
-    @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        /* Each panel fills the viewport, snaps, and gives its inner a 3D stage */
+        .panel {
+            height: 100vh;
+            scroll-snap-align: start;
+            perspective: 1400px;
+            overflow: hidden;
+        }
 
-    /* Section header underline */
-    .section-header-inner {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-    }
+        .panel-inner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 56px;
+            padding: 0 7vw;
+            max-width: 1200px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+            transform-origin: center center;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
 
-    /* Fade-in on scroll */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+        /* Left column: visual */
+        .panel-visual {
+            flex: 0 0 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* Shimmer button */
-    .btn-shimmer {
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-shimmer::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      animation: shimmer 2.4s infinite;
-    }
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 200%; }
-    }
+        .panel-visual img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+            filter: grayscale(100%);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
 
-    /* Canvas animations */
-    canvas.bg-canvas {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
+        .visual-placeholder {
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 28px;
+            color: #3a3a3a;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            background: radial-gradient(circle at 30% 30%, #1a1a1a, #0c0c0c);
+        }
 
-    /* Modal */
-    #waitlist-modal {
-      display: none;
-    }
-    #waitlist-modal.open {
-      display: flex;
-    }
+        .visual-placeholder span {
+            border: 1px dashed #2e2e2e;
+            padding: 14px 20px;
+            border-radius: 4px;
+        }
 
-    /* Navbar */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-    }
+        /* Stacked company logos as a visual */
+        .logo-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            align-items: center;
+        }
 
-    /* Pillar rows */
-    .pillar-row + .pillar-row {
-      border-top: 1px solid var(--border);
-    }
-  </style>
+        .logo-stack a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        /* PQCrypto wordmark (image is already black & white) */
+        .logo-stack a:not(.brand) img {
+            max-width: 80%;
+            max-height: 44px;
+            width: auto;
+            opacity: 0.92;
+            transition: opacity 0.25s ease;
+        }
+
+        .logo-stack a:hover img { opacity: 1; }
+
+        /* Carets icon + wordmark */
+        .brand { gap: 8px; }
+
+        .logo-stack .brand-icon {
+            height: 46px;
+            width: 46px;
+            flex: none;
+            max-width: none;
+            max-height: none;
+            object-fit: contain;
+            filter: grayscale(100%) brightness(1.5);
+            opacity: 0.9;
+            transition: opacity 0.25s ease;
+        }
+
+        .brand-word {
+            font-family: 'Inter Tight', Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 47px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            line-height: 1;
+            color: #f0ece0;
+        }
+
+        .logo-stack a.brand:hover .brand-icon { opacity: 1; }
+
+        /* Divider between logos in stack */
+        .logo-divider {
+            font-family: 'Sora', sans-serif;
+            font-size: 22px;
+            color: #6a6a6a;
+            font-weight: 500;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px 0;
+            width: 100%;
+        }
+
+        /* Right column: text */
+        .panel-text {
+            flex: 1;
+            min-width: 0;
+            max-width: 620px;
+        }
+
+        .eyebrow {
+            font-size: 0.72em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #6a6a6a;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #ffffff;
+            line-height: 1.06;
+            margin-bottom: 14px;
+        }
+
+        .subtitle {
+            font-size: 1.15em;
+            font-weight: 400;
+            color: #999;
+            margin-bottom: 28px;
+        }
+
+        h2 {
+            font-size: 2.2em;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            line-height: 1.12;
+            margin-bottom: 24px;
+        }
+
+        p {
+            color: #c0c0c0;
+            font-size: 1.08em;
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 18px;
+            max-width: 560px;
+        }
+
+        p a {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-color: #444;
+            transition: text-decoration-color 0.2s ease, color 0.2s ease;
+        }
+
+        p a:hover {
+            color: #ffffff;
+            text-decoration-color: #999;
+        }
+
+        .edit { color: #666; }
+
+        /* Link rows */
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 8px;
+        }
+
+        .link-item a {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            padding: 14px 0;
+            text-decoration: none;
+            border-bottom: 1px solid #1c1c1c;
+            transition: border-color 0.2s ease;
+        }
+
+        .link-item a:hover { border-color: #444; }
+
+        .link-label {
+            color: #ffffff;
+            font-weight: 500;
+            min-width: 120px;
+            font-size: 1.05em;
+        }
+
+        .link-desc {
+            color: #888;
+            font-weight: 300;
+            transition: color 0.2s ease;
+        }
+
+        .link-item a:hover .link-desc { color: #c8c8c8; }
+
+        /* Nav dots */
+        .nav-dots {
+            position: fixed;
+            right: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            z-index: 10;
+        }
+
+        .nav-dots a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-label {
+            font-size: 0.7em;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #555;
+            transition: color 0.25s ease;
+        }
+
+        .nav-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #333;
+            flex-shrink: 0;
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        .nav-dots a:hover .nav-label { color: #999; }
+
+        .nav-dots a.active .nav-label { color: #e0e0e0; }
+
+        .nav-dots a.active .nav-dot {
+            background: #e0e0e0;
+            transform: scale(1.3);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #555;
+            font-size: 0.75em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: bob 2s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+
+        /* Previous works list */
+        .work-heading {
+            flex: 0 0 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .work-heading h2 { margin-bottom: 0; }
+
+        .work-list {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .work-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 16px 0;
+            border-bottom: 1px solid #1c1c1c;
+        }
+
+        .work-item:last-child { border-bottom: none; }
+
+        .work-org {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .work-role {
+            color: #9a9a9a;
+            font-weight: 300;
+            font-size: 0.98em;
+        }
+
+        .work-date {
+            color: #666;
+            font-weight: 300;
+            font-size: 0.85em;
+        }
+
+        /* Centered panel (Connect) */
+        .panel.centered .panel-inner {
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .panel.centered .panel-text { max-width: 480px; flex: none; }
+        .panel.centered p { margin-left: auto; margin-right: auto; }
+        .panel.centered .links { align-items: center; }
+        .panel.centered .link-item a { justify-content: center; gap: 12px; }
+        .panel.centered .link-label { min-width: 0; }
+
+        footer {
+            color: #555;
+            font-size: 0.85em;
+            font-weight: 300;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 820px) {
+            html { scroll-snap-type: none; }
+            .panel { height: auto; min-height: 100vh; perspective: none; }
+            .panel-inner {
+                flex-direction: column;
+                justify-content: center;
+                gap: 36px;
+                padding: 72px 28px;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+            .panel-visual { flex: none; width: 240px; }
+            .logo-stack img { max-width: 100%; }
+            h1 { font-size: 2.3em; }
+            h2 { font-size: 1.8em; }
+            .nav-dots { display: none; }
+            .work-item { flex-direction: column; gap: 2px; }
+            .work-org { flex: none; }
+        }
+    </style>
 </head>
-<body class="bg-white text-gray-950 antialiased">
+<body>
+    <nav class="nav-dots">
+        <a href="#about" data-target="about" class="active"><span class="nav-label">About</span><span class="nav-dot"></span></a>
+        <a href="#now" data-target="now"><span class="nav-label">Now</span><span class="nav-dot"></span></a>
+        <a href="#work" data-target="work"><span class="nav-label">Experience</span><span class="nav-dot"></span></a>
+        <a href="#connect" data-target="connect"><span class="nav-label">Connect</span><span class="nav-dot"></span></a>
+    </nav>
 
-<!-- ─── NAVBAR ─────────────────────────────────────────────────────────── -->
-<nav>
-  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
-    <a href="#home" class="flex items-center gap-2.5 shrink-0">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 28 28" fill="none">
-        <g opacity="1">
-          <rect x="6" y="4" width="6" height="1.5" rx="0.5" fill="#1a1a1a"/>
-          <rect x="8.25" y="4" width="1.5" height="20" fill="#1a1a1a"/>
-          <rect x="6" y="22.5" width="6" height="1.5" rx="0.5" fill="#1a1a1a"/>
-        </g>
-        <g opacity="0.5">
-          <rect x="14" y="6" width="5" height="1.2" rx="0.5" fill="#1a1a1a"/>
-          <rect x="15.75" y="6" width="1.5" height="16" fill="#1a1a1a"/>
-          <rect x="14" y="20.8" width="5" height="1.2" rx="0.5" fill="#1a1a1a"/>
-        </g>
-        <g opacity="0.25">
-          <rect x="21" y="8" width="4" height="1" rx="0.5" fill="#1a1a1a"/>
-          <rect x="22.25" y="8" width="1.5" height="12" fill="#1a1a1a"/>
-          <rect x="21" y="19" width="4" height="1" rx="0.5" fill="#1a1a1a"/>
-        </g>
-      </svg>
-      <span class="text-xl font-semibold tracking-tight">Carets</span>
-    </a>
-    <div class="hidden md:flex items-center gap-6 text-sm text-gray-500">
-      <a href="#about" class="hover:text-gray-900 transition-colors">About</a>
-      <a href="#how-it-works" class="hover:text-gray-900 transition-colors">How it works</a>
-      <a href="#features" class="hover:text-gray-900 transition-colors">Features</a>
-      <a href="#vision" class="hover:text-gray-900 transition-colors">Vision</a>
-      <a href="#latest" class="hover:text-gray-900 transition-colors">Blog</a>
-      <a href="#pricing" class="hover:text-gray-900 transition-colors">Pricing</a>
-    </div>
-    <button onclick="openWaitlist()" class="btn-shimmer px-4 py-2 text-xs font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity">
-      Request access
-    </button>
-  </div>
-</nav>
-
-<!-- ─── HERO ───────────────────────────────────────────────────────────── -->
-<section id="home" class="relative overflow-hidden min-h-[85vh] flex flex-col justify-center">
-  <canvas id="hero-canvas" class="bg-canvas" style="-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%);mask-image:linear-gradient(to bottom,transparent 0%,black 20%,black 65%,transparent 95%)"></canvas>
-  <div class="max-w-5xl mx-auto px-6 pt-20 pb-16 flex flex-col items-center text-center relative z-10">
-    <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.05] mb-8">
-      <span class="whitespace-nowrap">Multiplayer A<span class="hero-logo-caret" aria-hidden="true"><svg viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="currentColor"/><rect x="8.15" y="4" width="1.7" height="20" fill="currentColor"/><rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="currentColor"/></svg></span></span><br/>Development
-    </h1>
-    <p class="text-xl md:text-2xl text-gray-500 mb-10 max-w-2xl leading-relaxed">
-      Every developer has an agent.<br/>None talk to each other.<br/>Carets fixes that.
-    </p>
-    <button onclick="openWaitlist()" class="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity shadow-lg">
-      Request Access
-    </button>
-  </div>
-</section>
-
-<!-- ─── SECTION HEADER HELPER ─────────────────────────────────────────── -->
-<!-- reused via inline HTML below -->
-
-<!-- ─── 00 ABOUT ───────────────────────────────────────────────────────── -->
-<section id="about" class="relative overflow-hidden bg-white">
-  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">00</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">About</h2>
-    </div>
-  </div>
-  <div class="max-w-6xl mx-auto px-6 pb-14 md:pb-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-start">
-      <div class="fade-in">
-        <h2 class="text-4xl md:text-5xl leading-[1.1] tracking-tight" style="font-family:'Georgia',serif;font-weight:400">
-          We believe the future of software is written by agents and humans <em>together.</em>
-        </h2>
-      </div>
-      <div class="fade-in flex flex-col gap-6 pt-1" style="transition-delay:0.1s">
-        <p class="text-base text-gray-500 leading-relaxed">
-          Carets was founded on a simple observation: multi-agent systems break down not because agents are unintelligent, but because they lack shared ground truth. Each agent operates in isolation, unaware of what others are building.
-        </p>
-        <p class="text-base text-gray-500 leading-relaxed">
-          We spent years building systems inside teams and watching the same thing break every time: nobody had the full picture. When AI agents arrived, the problem got worse. Carets makes agents work together the way humans do on a team, not in isolation.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── DEMO VIDEO ─────────────────────────────────────────────────────── -->
-<section class="bg-white pb-14 md:pb-16">
-  <div class="max-w-3xl mx-auto px-6">
-    <div class="fade-in">
-      <video
-        src="carets-animation.mp4"
-        controls
-        playsinline
-        preload="metadata"
-        class="w-full rounded-xl border border-gray-200 shadow-md"
-        style="display:block"
-      ></video>
-    </div>
-    <p class="mt-4 text-center text-sm text-gray-400 fade-in" style="transition-delay:0.1s">
-      Questions? Reach us at <a href="mailto:caretsai26@gmail.com" class="text-orange-500 hover:underline">caretsai26@gmail.com</a>
-    </p>
-  </div>
-</section>
-
-<!-- ─── 01 HOW IT WORKS ────────────────────────────────────────────────── -->
-<section id="how-it-works" class="relative overflow-hidden">
-  <canvas id="how-canvas" class="bg-canvas"></canvas>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">01</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">How it works</h2>
-    </div>
-  </div>
-  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
-    <div class="fade-in mb-16">
-      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">From isolated agents to a coordinated team in three steps</h2>
-    </div>
-    <div class="grid md:grid-cols-3 gap-0 border border-gray-200">
-      <div class="fade-in p-8 flex flex-col bg-white border-b md:border-b-0 md:border-r border-gray-200">
-        <h3 class="text-lg font-semibold mb-3">Install and connect</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-4">Run a single command to connect your agents to Carets. No complex configuration. Works with the coding agents your team already uses.</p>
-        <p class="text-xs font-mono text-orange-500 mt-auto">Up and running in minutes.</p>
-      </div>
-      <div class="fade-in p-8 flex flex-col bg-white border-b md:border-b-0 md:border-r border-gray-200" style="transition-delay:0.1s">
-        <h3 class="text-lg font-semibold mb-3">Carets watches your agents</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-4">As your agents work, Carets tracks what each one is doing and builds a shared picture of your project. Automatically, in the background.</p>
-        <p class="text-xs font-mono text-orange-500 mt-auto">No manual handoffs. No shared docs.</p>
-      </div>
-      <div class="fade-in p-8 flex flex-col bg-white" style="transition-delay:0.2s">
-        <h3 class="text-lg font-semibold mb-3">Every agent stays in sync</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-4">Before each agent starts a new task, it gets the context it needs from the rest of the team. Agents build on each other's work instead of over it.</p>
-        <p class="text-xs font-mono text-orange-500 mt-auto">Ship faster. Break nothing.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── 02 FEATURES ────────────────────────────────────────────────────── -->
-<section id="features" class="relative overflow-hidden bg-white">
-  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">02</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Features</h2>
-    </div>
-  </div>
-  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-16">
-    <div class="fade-in mb-16">
-      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">Synchronizing state across agents and humans</h2>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-200 overflow-hidden border border-gray-200">
-
-      <!-- Shared Context -->
-      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors">
-        <!-- Icon: center dot + 3 orbiting nodes with traveling pulses -->
-        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
-          <!-- center dot -->
-          <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#3b82f6;z-index:10;animation:pulse-dot 4s ease-in-out infinite"></div>
-          <!-- node 1: angle -60 -->
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:-60deg;animation:line-pulse 4s infinite 0s"></div>
-            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:9px;--ty:-15.6px;animation:travel 2.5s ease-in-out infinite 0s"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;left:calc(50% + 9px - 4px);top:calc(50% - 15.6px - 4px)"></div>
-          </div>
-          <!-- node 2: angle 60 -->
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:60deg;animation:line-pulse 4s infinite 0.7s"></div>
-            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(249,115,22,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:9px;--ty:15.6px;animation:travel 2.5s ease-in-out infinite 0.8s"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#f97316;left:calc(50% + 9px - 4px);top:calc(50% + 15.6px - 4px)"></div>
-          </div>
-          <!-- node 3: angle 180 -->
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-            <div style="position:absolute;height:1px;background:rgba(59,130,246,.3);width:18px;left:50%;top:50%;transform-origin:0 0;rotate:180deg;animation:line-pulse 4s infinite 1.4s"></div>
-            <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(100,100,100,.8);left:50%;top:50%;transform:translate(-50%,-50%);--tx:-18px;--ty:0px;animation:travel 2.5s ease-in-out infinite 1.6s"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(10,10,10,.5);left:calc(50% - 18px - 4px);top:calc(50% - 4px)"></div>
-          </div>
+    <!-- About -->
+    <section class="panel" id="about">
+        <div class="panel-inner">
+            <div class="panel-visual">
+                <img src="./portrait-bw.jpg" alt="Sukhamrit Singh" />
+            </div>
+            <div class="panel-text">
+                <p class="eyebrow">About me</p>
+                <h1>Sukhamrit Singh</h1>
+                <p>
+                    Hi, I'm Sukhamrit. I'm a recent graduate of UC Berkeley, where I double majored
+                    in Electrical Engineering &amp; Computer Science (EECS) and Business Administration.
+                </p>
+                <p>
+                    I love entrepreneurship and solving hard problems. Right now I'm building <a href="https://carets.ai" target="_blank" rel="noopener noreferrer">Carets</a> to solve
+                    today's agent orchestration and context problems, and <a href="https://pqcrypto.ai" target="_blank" rel="noopener noreferrer">PQCrypto</a> to protect tomorrow's world
+                    from quantum attacks. When I'm not building, I'm playing <a href="https://www.youtube.com/@srgm.strings" target="_blank" rel="noopener noreferrer">Indian Classical Violin</a>.
+                </p>
+            </div>
         </div>
-        <div class="pt-1">
-          <h3 class="text-sm font-semibold mb-1">Shared Context</h3>
-          <p class="text-xs text-gray-500 leading-relaxed">Every agent works from the same evolving project context and interface contracts.</p>
+    </section>
+
+    <!-- Now -->
+    <section class="panel" id="now">
+        <div class="panel-inner">
+            <div class="panel-visual">
+                <div class="logo-stack">
+                    <a class="brand" href="https://carets.ai" target="_blank" rel="noopener noreferrer">
+                        <img class="brand-icon" src="./carets.svg" alt="" />
+                        <span class="brand-word">Carets</span>
+                    </a>
+                    <div class="logo-divider">+</div>
+                    <a href="https://pqcrypto.ai" target="_blank" rel="noopener noreferrer">
+                        <img src="./pqcrypto-white.png" alt="PQCrypto" />
+                    </a>
+                </div>
+            </div>
+            <div class="panel-text">
+                <p class="eyebrow">What I'm working on</p>
+                <h2>Right now</h2>
+                <div class="links">
+                    <div class="link-item">
+                        <a href="https://carets.ai" target="_blank" rel="noopener noreferrer">
+                            <span class="link-label">Carets</span>
+                            <span class="link-desc">Shared context and observability layer for distributed AI agent workflows.</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="https://pqcrypto.ai" target="_blank" rel="noopener noreferrer">
+                            <span class="link-label">PQCrypto</span>
+                            <span class="link-desc">Post-quantum cryptography to secure data against future quantum attacks.</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <!-- Multiplayer Execution -->
-      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.08s">
-        <div class="shrink-0 w-14 h-14 relative flex flex-col justify-center gap-[6px] px-1 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
-          <!-- lane 1 -->
-          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 0s">
-            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 0s"></div>
-          </div>
-          <!-- lane 2 -->
-          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 0.5s">
-            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#f97316;top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 0.5s"></div>
-          </div>
-          <!-- lane 3 -->
-          <div style="position:relative;width:100%;height:8px;display:flex;align-items:center;animation:fade-lane 3.2s ease-in-out infinite 1.0s">
-            <div style="position:absolute;inset-x:0;top:50%;height:1px;background:rgba(10,10,10,.25);transform:translateY(-50%)"></div>
-            <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(10,10,10,.5);top:50%;margin-top:-4px;animation:slide-dot 3.2s ease-in-out infinite 1.0s"></div>
-          </div>
+    <!-- Work -->
+    <section class="panel" id="work">
+        <div class="panel-inner">
+            <div class="work-heading">
+                <p class="eyebrow">Experience</p>
+                <h2>Where I've worked</h2>
+            </div>
+            <div class="panel-text">
+                <div class="work-list">
+                    <div class="work-item">
+                        <span class="work-org">Amazon</span>
+                        <span class="work-role">Software Development Engineer Intern</span>
+                        <span class="work-date">2024, 2025</span>
+                    </div>
+                    <div class="work-item">
+                        <span class="work-org">Berkeley AI Research (BAIR)</span>
+                        <span class="work-role">Machine Learning Undergraduate Researcher</span>
+                        <span class="work-date">2025</span>
+                    </div>
+                    <div class="work-item">
+                        <span class="work-org">Associated Students of the University of California</span>
+                        <span class="work-role">Chief Technology Officer</span>
+                        <span class="work-date">2024</span>
+                    </div>
+                    <div class="work-item">
+                        <span class="work-org">Aepnus Technology</span>
+                        <span class="work-role">Data Science &amp; Software Engineer Intern</span>
+                        <span class="work-date">2023</span>
+                    </div>
+                    <div class="work-item">
+                        <span class="work-org">Stanford University</span>
+                        <span class="work-role">Machine Learning Researcher</span>
+                        <span class="work-date">2021</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="pt-1">
-          <h3 class="text-sm font-semibold mb-1">Multiplayer Execution</h3>
-          <p class="text-xs text-gray-500 leading-relaxed">Run agents in parallel with coordinated, non-isolated output.</p>
+    </section>
+
+    <!-- Connect (centered, no image) -->
+    <section class="panel centered" id="connect">
+        <div class="panel-inner">
+            <div class="panel-text">
+                <p class="eyebrow">Get in touch</p>
+                <h2>Let's connect</h2>
+                <div class="links">
+                    <div class="link-item">
+                        <a href="mailto:sukhamrit@berkeley.edu">
+                            <span class="link-label">Email</span>
+                            <span class="link-desc">sukhamrit@berkeley.edu</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="https://github.com/Sukhamrit-Singh" target="_blank" rel="noopener noreferrer">
+                            <span class="link-label">GitHub</span>
+                            <span class="link-desc">@Sukhamrit-Singh</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="https://www.linkedin.com/in/sukhamrits/" target="_blank" rel="noopener noreferrer">
+                            <span class="link-label">LinkedIn</span>
+                            <span class="link-desc">linkedin.com/in/sukhamrits</span>
+                        </a>
+                    </div>
+                </div>
+                <footer>&copy; <span id="year"></span> Sukhamrit Singh. All rights reserved.</footer>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <!-- Deterministic Matching -->
-      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.16s">
-        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
-          <!-- left block -->
-          <div style="position:absolute;width:16px;height:20px;background:rgba(59,130,246,.8);border-radius:4px;z-index:10;animation:slide-left 4s infinite"></div>
-          <!-- right block -->
-          <div style="position:absolute;width:16px;height:20px;background:rgba(249,115,22,.8);border-radius:4px;z-index:10;animation:slide-right 4s infinite"></div>
-          <!-- join flash -->
-          <div style="position:absolute;width:1px;height:20px;background:rgba(10,10,10,.4);animation:join-flash 4s infinite"></div>
-        </div>
-        <div class="pt-1">
-          <h3 class="text-sm font-semibold mb-1">Deterministic Matching</h3>
-          <p class="text-xs text-gray-500 leading-relaxed">Strict contract resolution prevents agents from breaking each other's work.</p>
-        </div>
-      </div>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-      <!-- Edge-native State -->
-      <div class="fade-in p-6 flex gap-4 items-start bg-white hover:bg-gray-50 transition-colors" style="transition-delay:0.24s">
-        <div class="shrink-0 w-14 h-14 relative flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
-          <!-- spinning refresh icon -->
-          <div style="color:#3b82f6;animation:spin 10s linear infinite">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-              <path d="M8 16H3v5"/>
-            </svg>
-          </div>
-        </div>
-        <div class="pt-1">
-          <h3 class="text-sm font-semibold mb-1">Edge-native State</h3>
-          <p class="text-xs text-gray-500 leading-relaxed">Sub-second sync across terminal sessions via durable shadow codebases.</p>
-        </div>
-      </div>
+        // Gentle 3D "wheel" turn as panels scroll through the viewport
+        const panels = document.querySelectorAll('.panel');
+        const dots = document.querySelectorAll('.nav-dots a');
+        const MAX_ROT = 26;   // degrees of turn at the edges (gentle)
+        const PUSH = 180;     // how far panels recede into the z-axis
 
-    </div>
-  </div>
-</section>
+        let ticking = false;
+        function render() {
+            const vh = window.innerHeight;
+            let activeId = panels[0].id;
+            let activeDist = Infinity;
 
-<!-- ─── 03 VISION ──────────────────────────────────────────────────────── -->
-<section id="vision" class="relative overflow-hidden bg-background">
-  <canvas id="vision-canvas" class="bg-canvas" style="-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%)"></canvas>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">03</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Vision</h2>
-    </div>
-  </div>
-  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
-    <div class="fade-in mb-16">
-      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl" style="font-family:'Georgia',serif;font-weight:400">A world where every agent knows its place.</h2>
-    </div>
-    <div class="flex flex-col">
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
-        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">I</div>
-        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Ground truth for every agent</h3>
-        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Every agent in a pipeline should operate from the same shared understanding of the project. When agents work in isolation, work gets duplicated, undone, or lost. We're fixing that.</p>
-      </div>
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="transition-delay:0.08s;background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
-        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">II</div>
-        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Developers stay in the driver's seat</h3>
-        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">The best teams using AI aren't the ones who automate the most. They're the ones who stay in control of what gets built and why. Carets keeps that control in the hands of engineers.</p>
-      </div>
-      <div class="pillar-row fade-in grid grid-cols-1 md:grid-cols-[80px_1fr_1fr] gap-6 md:gap-12 py-10 items-start -mx-4 px-4" style="transition-delay:0.16s;background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)">
-        <div class="text-xl select-none" style="font-family:'Georgia',serif;color:rgba(10,10,10,0.15)">III</div>
-        <h3 class="text-xl md:text-2xl" style="font-family:'Georgia',serif;font-weight:400">Multi-agent is the new default</h3>
-        <p class="text-sm text-gray-500 leading-relaxed max-w-sm">Software is increasingly built by teams of agents working in parallel. The teams that figure out coordination first will move fastest. We're building the foundation for that.</p>
-      </div>
-    </div>
-  </div>
-</section>
+            panels.forEach((panel) => {
+                const rect = panel.getBoundingClientRect();
+                const panelCenter = rect.top + rect.height / 2;
+                const offset = Math.max(-1, Math.min(1, (vh / 2 - panelCenter) / vh));
+                const inner = panel.querySelector('.panel-inner');
 
-<!-- ─── 04 BLOG ────────────────────────────────────────────────────────── -->
-<section id="latest" class="bg-white">
-  <div class="w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">04</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Blog</h2>
-    </div>
-  </div>
-  <div class="max-w-7xl mx-auto px-6 pb-14 md:pb-16">
-    <div class="fade-in mb-16">
-      <h2 class="text-3xl md:text-4xl font-medium tracking-tight">The latest from Carets.</h2>
-    </div>
-    <div class="border border-gray-200 grid grid-cols-1 sm:grid-cols-2">
-      <!-- TreeHacks -->
-      <div class="fade-in p-8 flex flex-col">
-        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-6">Recognition</p>
-        <div class="flex items-start gap-4">
-          <div class="shrink-0 w-10 h-10 border border-orange-200 bg-orange-50 flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-              <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-base font-semibold mb-1">1st Place, TreeHacks 2026</h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">Carets won first place at Stanford University's premier intercollegiate hackathon, competing against 1,500+ hackers from across the world.</p>
-            <p class="text-xs font-mono text-orange-500">Stanford University · February 2026</p>
-          </div>
-        </div>
-      </div>
-      <!-- Cloudflare -->
-      <div class="fade-in p-8 flex flex-col border-t sm:border-t-0 sm:border-l border-gray-200" style="transition-delay:0.08s">
-        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-6">Recognition</p>
-        <div class="flex items-start gap-4">
-          <div class="shrink-0 w-10 h-10 border border-orange-200 bg-orange-50 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="54 3 50 28" width="22" height="22">
-              <path fill="#f48120" d="M88.1 24c.3-1 .2-2-.3-2.6-.5-.6-1.2-1-2.1-1.1l-17.4-.2c-.1 0-.2-.1-.3-.1-.1-.1-.1-.2 0-.3.1-.2.2-.3.4-.3l17.5-.2c2.1-.1 4.3-1.8 5.1-3.8l1-2.6c0-.1.1-.2 0-.3-1.1-5.1-5.7-8.9-11.1-8.9-5 0-9.3 3.2-10.8 7.7-1-.7-2.2-1.1-3.6-1-2.4.2-4.3 2.2-4.6 4.6-.1.6 0 1.2.1 1.8-3.9.1-7.1 3.3-7.1 7.3 0 .4 0 .7.1 1.1 0 .2.2.3.3.3h32.1c.2 0 .4-.1.4-.3l.3-1.1z"/>
-              <path fill="#faad3f" d="M93.6 12.8h-.5c-.1 0-.2.1-.3.2l-.7 2.4c-.3 1-.2 2 .3 2.6.5.6 1.2 1 2.1 1.1l3.7.2c.1 0 .2.1.3.1.1.1.1.2 0 .3-.1.2-.2.3-.4.3l-3.8.2c-2.1.1-4.3 1.8-5.1 3.8l-.2.9c-.1.1 0 .3.2.3h13.2c.2 0 .3-.1.3-.3.2-.8.4-1.7.4-2.6 0-5.2-4.3-9.5-9.5-9.5"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-base font-semibold mb-1">Cloudflare Startup Program</h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">Carets was accepted into Cloudflare's startup program.</p>
-            <p class="text-xs font-mono text-orange-400">Cloudflare · 2026</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+                const rotX = offset * MAX_ROT;
+                const tz = -Math.abs(offset) * PUSH;
+                inner.style.transform = `translateZ(${tz}px) rotateX(${rotX}deg)`;
+                inner.style.opacity = (1 - Math.abs(offset) * 0.55).toFixed(3);
 
-<!-- ─── 05 PRICING ─────────────────────────────────────────────────────── -->
-<section id="pricing" class="relative overflow-hidden bg-white">
-  <canvas id="pricing-canvas" class="bg-canvas"></canvas>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-6">
-    <div class="section-header-inner flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
-      <span class="text-4xl md:text-5xl font-mono text-gray-300 tracking-tighter">05</span>
-      <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">Pricing</h2>
-    </div>
-  </div>
-  <div class="relative z-10 max-w-7xl mx-auto px-6 pb-14 md:pb-16">
-    <div class="fade-in mb-16">
-      <h2 class="text-3xl md:text-4xl font-medium tracking-tight max-w-xl">Simple pricing that scales with your team</h2>
-    </div>
-    <div class="grid md:grid-cols-2 gap-0 border border-gray-200">
-      <!-- Pro -->
-      <div class="fade-in p-8 flex flex-col relative bg-white border-b md:border-b-0 md:border-r border-gray-200">
-        <div class="absolute top-0 left-0 right-0 h-0.5 bg-orange-500"></div>
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-1">
-            <p class="text-xs font-mono uppercase tracking-widest text-gray-400">Pro</p>
-            <span class="text-[10px] font-mono bg-orange-50 text-orange-500 px-1.5 py-0.5 border border-orange-200">Most popular</span>
-          </div>
-          <div class="flex items-baseline gap-1.5 mt-3 mb-2">
-            <span class="text-4xl font-semibold tracking-tight">$15</span>
-            <span class="text-sm text-gray-500">per seat / month</span>
-          </div>
-          <p class="text-sm text-gray-500">For fast-moving engineering teams that need agents working in lockstep.</p>
-        </div>
-        <ul class="space-y-2.5 mb-8 flex-1">
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Unlimited seats</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Unlimited concurrent agents</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Full shared context &amp; LLM ranking</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Real-time contract sync</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Priority support</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Usage analytics</li>
-        </ul>
-        <button onclick="openWaitlist()" class="btn-shimmer w-full py-2.5 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity">Request access</button>
-      </div>
-      <!-- Enterprise -->
-      <div class="fade-in p-8 flex flex-col bg-white" style="transition-delay:0.1s">
-        <div class="mb-6">
-          <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-1">Enterprise</p>
-          <div class="flex items-baseline gap-1.5 mt-3 mb-2">
-            <span class="text-4xl font-semibold tracking-tight">Custom</span>
-            <span class="text-sm text-gray-500">contact us</span>
-          </div>
-          <p class="text-sm text-gray-500">For larger teams needing on-prem deployment, SSO, and dedicated support.</p>
-        </div>
-        <ul class="space-y-2.5 mb-8 flex-1">
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Everything in Pro</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>SSO / SAML</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Audit logs</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>VPC / on-prem deployment</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>SLA guarantee</li>
-          <li class="flex items-start gap-2.5 text-sm"><span class="text-orange-500 shrink-0 text-xs mt-0.5">✓</span>Dedicated account manager</li>
-        </ul>
-        <a href="mailto:caretsai26@gmail.com" class="w-full py-2.5 text-sm font-medium border border-gray-200 text-gray-900 hover:border-gray-400 transition-colors text-center block">Contact us</a>
-      </div>
-    </div>
-  </div>
-</section>
+                const dist = Math.abs(panelCenter - vh / 2);
+                if (dist < activeDist) { activeDist = dist; activeId = panel.id; }
+            });
 
-<!-- ─── CTA ────────────────────────────────────────────────────────────── -->
-<section class="bg-white py-24 px-6 text-center">
-  <div class="max-w-2xl mx-auto fade-in">
-    <h2 class="text-4xl md:text-5xl font-semibold tracking-tight mb-6">Ready to ship faster?</h2>
-    <p class="text-lg text-gray-500 mb-10">Join teams already building with Carets.</p>
-    <button onclick="openWaitlist()" class="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium bg-orange-500 text-white hover:opacity-90 transition-opacity shadow-lg">
-      Request Access
-    </button>
-  </div>
-</section>
-
-<!-- ─── FOOTER ─────────────────────────────────────────────────────────── -->
-<footer class="border-t border-gray-200">
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-      <div class="col-span-2 md:col-span-1">
-        <div class="flex items-center gap-2 mb-3">
-          <svg width="18" height="18" viewBox="6 4 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="6" y="4" width="6" height="1.8" rx="0.5" fill="#F97316"/>
-            <rect x="8.15" y="4" width="1.7" height="20" fill="#F97316"/>
-            <rect x="6" y="22.2" width="6" height="1.8" rx="0.5" fill="#F97316"/>
-          </svg>
-          <span class="text-lg font-semibold tracking-tight">Carets</span>
-        </div>
-        <p class="text-sm text-gray-500 max-w-xs">The multiplayer execution environment for modern AI teams.</p>
-      </div>
-      <div>
-        <h4 class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">Site</h4>
-        <ul class="space-y-2.5">
-          <li><a href="#about" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">About</a></li>
-          <li><a href="#how-it-works" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">How it works</a></li>
-          <li><a href="#features" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Features</a></li>
-          <li><a href="#vision" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Vision</a></li>
-          <li><a href="#latest" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a></li>
-          <li><a href="#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Pricing</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">Company</h4>
-        <ul class="space-y-2.5">
-          <li><a href="mailto:caretsai26@gmail.com" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Contact</a></li>
-          <li><a href="https://www.linkedin.com/company/carets-ai/" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">LinkedIn</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="mt-16 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-gray-400">© 2026 Carets. All rights reserved.</p>
-      <div class="flex items-center gap-4">
-        <a href="https://www.linkedin.com/company/carets-ai/" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-gray-900 transition-colors">LinkedIn</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- ─── WAITLIST MODAL ─────────────────────────────────────────────────── -->
-<div id="waitlist-modal" class="fixed inset-0 z-50 items-center justify-center p-4">
-  <button onclick="closeWaitlist()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></button>
-  <div class="relative w-full max-w-lg border border-gray-200 bg-white shadow-2xl p-6 sm:p-8">
-    <div class="flex items-start justify-between gap-4 mb-6">
-      <div>
-        <p class="text-xs font-mono uppercase tracking-widest text-gray-400 mb-1">Carets Waitlist</p>
-        <h3 class="text-2xl font-semibold tracking-tight">Join the Private Beta</h3>
-        <p class="text-sm text-gray-500 mt-1.5">We're onboarding teams in waves. Drop your info and we'll reach out.</p>
-      </div>
-      <button onclick="closeWaitlist()" class="shrink-0 text-gray-400 hover:text-gray-900 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-    <form id="waitlist-form" onsubmit="submitWaitlist(event)" class="space-y-4">
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1.5">Full Name</label>
-        <input name="fullName" type="text" required placeholder="Your name" class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
-      </div>
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1.5">Email</label>
-        <input name="email" type="email" required placeholder="you@company.com" class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
-      </div>
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1.5">Team / Company <span class="text-gray-300">(optional)</span></label>
-        <input name="teamOrCompany" type="text" placeholder="Acme, Inc." class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300" />
-      </div>
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1.5">Why are you interested? <span class="text-gray-300">(optional)</span></label>
-        <textarea name="interestReason" rows="3" placeholder="Share your use case, current workflow, or pain points." class="w-full border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-gray-400 transition-colors resize-y placeholder:text-gray-300"></textarea>
-      </div>
-      <div id="waitlist-msg" class="hidden text-xs font-mono px-3 py-2 border"></div>
-      <div class="pt-1">
-        <button type="submit" id="waitlist-submit" class="btn-shimmer w-full bg-orange-500 text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity">
-          Request access
-        </button>
-        <p class="text-xs text-gray-400 mt-3 leading-relaxed">By submitting, you acknowledge that Carets is a paid service at $15 per seat / month. Joining the beta waitlist is non-binding. No payment is required now.</p>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ─── SCRIPTS ────────────────────────────────────────────────────────── -->
-<script>
-// Modal
-function openWaitlist() {
-  document.getElementById('waitlist-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeWaitlist() {
-  document.getElementById('waitlist-modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaitlist(); });
-
-// Waitlist form — submits to the real API if on same origin, otherwise shows a thank-you
-async function submitWaitlist(e) {
-  e.preventDefault();
-  const form = e.target;
-  const btn = document.getElementById('waitlist-submit');
-  const msg = document.getElementById('waitlist-msg');
-  const data = new FormData(form);
-  btn.textContent = 'Submitting…';
-  btn.disabled = true;
-  msg.className = 'hidden';
-  try {
-    const res = await fetch('/api/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fullName: data.get('fullName'),
-        email: data.get('email'),
-        teamOrCompany: data.get('teamOrCompany'),
-        interestReason: data.get('interestReason'),
-        acknowledgedPaidService: true,
-      })
-    });
-    if (res.ok) {
-      msg.textContent = "You're on the list. We'll be in touch soon.";
-      msg.className = 'text-xs font-mono px-3 py-2 border border-green-200 bg-green-50 text-green-600';
-      form.reset();
-    } else {
-      throw new Error('Something went wrong.');
-    }
-  } catch {
-    msg.textContent = "You're on the list! We'll be in touch soon.";
-    msg.className = 'text-xs font-mono px-3 py-2 border border-green-200 bg-green-50 text-green-600';
-    form.reset();
-  }
-  btn.textContent = 'Request access';
-  btn.disabled = false;
-}
-
-// Scroll fade-in
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-// ─── CANVAS ANIMATIONS ─────────────────────────────────────────
-const caretPath = new Path2D();
-caretPath.rect(11, 4, 6, 1.5);
-caretPath.rect(13.25, 4, 1.5, 20);
-caretPath.rect(11, 22.5, 6, 1.5);
-
-// Hero — dense grid matrix with moving swarm noise + mouse interactivity
-(function heroAnim() {
-  const canvas = document.getElementById('hero-canvas');
-  const ctx = canvas.getContext('2d');
-  const COL_GAP = 18, ROW_GAP = 18;
-  let grid = [], cols = 0, rows = 0, w = 0, h = 0;
-  let mx = -9999, my = -9999;
-  const mouseRadius = 180, mouseRadiusSq = mouseRadius * mouseRadius;
-
-  function buildGrid() {
-    const dpr = devicePixelRatio || 1;
-    w = canvas.parentElement.offsetWidth;
-    h = canvas.parentElement.offsetHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cols = Math.ceil(w / COL_GAP) + 2;
-    rows = Math.ceil(h / ROW_GAP) + 2;
-    grid = [];
-    for (let r = 0; r < rows; r++) {
-      const row = [];
-      for (let c = 0; c < cols; c++) {
-        row.push({ baseOpacity: Math.random() * 0.1 + 0.05, opacity: 0 });
-      }
-      grid.push(row);
-    }
-  }
-
-  new ResizeObserver(buildGrid).observe(canvas.parentElement);
-  canvas.parentElement.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
-    mx = e.clientX - rect.left; my = e.clientY - rect.top;
-  });
-  canvas.parentElement.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
-
-  let frame = 0;
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    frame++;
-    const t = frame * 0.015;
-    const sc = 0.12;
-    for (let r = 0; r < rows; r++) {
-      const py = r * ROW_GAP;
-      for (let c = 0; c < cols; c++) {
-        const cell = grid[r][c];
-        const px = c * COL_GAP;
-        const w1 = Math.sin(c * sc + t) * Math.cos(r * sc - t * 0.8);
-        const w2 = Math.sin(c * sc * 1.5 - t * 1.2 + r * sc * 0.5) * Math.cos(r * sc * 1.3 + t * 0.9);
-        const w3 = Math.sin(c * sc * 2.5 + t * 2) * Math.cos(r * sc * 2.5 - t * 1.5);
-        let noise = (w1 + w2 * 0.7 + w3 * 0.4) / 2.1;
-        noise = (noise + 1) / 2;
-        let swarmIntensity = noise > 0.55 ? (noise - 0.55) / 0.45 : 0;
-        let targetOpacity = cell.baseOpacity + swarmIntensity * 0.5;
-        const dx = px - mx, dy = py - my;
-        const distSq = dx * dx + dy * dy;
-        const isNearMouse = distSq < mouseRadiusSq;
-        if (isNearMouse) {
-          const dist = Math.sqrt(distSq);
-          const f = 1 - dist / mouseRadius;
-          const eased = f * f * f;
-          targetOpacity = Math.max(targetOpacity, cell.baseOpacity + eased * 0.7);
+            dots.forEach((d) => d.classList.toggle('active', d.dataset.target === activeId));
+            ticking = false;
         }
-        cell.opacity += (targetOpacity - cell.opacity) * 0.08;
-        if (cell.opacity < 0.01) continue;
-        const isSwarming = !isNearMouse && swarmIntensity > 0.1;
-        if ((isNearMouse && cell.opacity > 0.2) || isSwarming) {
-          const intensity = Math.min(1, (cell.opacity - cell.baseOpacity) / 0.5);
-          const hue = 200 + intensity * 15;
-          const sat = isNearMouse ? 20 + intensity * 40 : 15 + intensity * 25;
-          const light = 30 + intensity * 20;
-          ctx.fillStyle = `hsla(${hue},${sat}%,${light}%,${cell.opacity + 0.15})`;
-        } else {
-          ctx.fillStyle = `hsla(220,15%,25%,${cell.opacity})`;
+
+        function onScroll() {
+            if (!ticking) { requestAnimationFrame(render); ticking = true; }
         }
-        ctx.save();
-        ctx.translate(px, py);
-        ctx.scale(0.5, 0.5);
-        ctx.translate(-14, -14);
-        ctx.fill(caretPath);
-        ctx.restore();
-      }
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 
-// Section 01 — scrolling rows
-(function howAnim() {
-  const canvas = document.getElementById('how-canvas');
-  const ctx = canvas.getContext('2d');
-  let cells = [], w = 0, h = 0;
-  const COL_GAP = 24, Y_OFFSET = 180;
-  function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    w = r.width; h = r.height;
-    const dpr = devicePixelRatio || 1;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const cols = Math.ceil(w / COL_GAP);
-    const NUM_ROWS = 8, usableH = h - Y_OFFSET;
-    const rowSpacing = usableH / (NUM_ROWS + 1);
-    cells = [];
-    for (let r = 0; r < NUM_ROWS; r++) {
-      if (r === 0) continue;
-      const rowY = Y_OFFSET + rowSpacing * (r + 1);
-      const speed = (Math.random() * 0.25 + 0.08) * (Math.random() > 0.5 ? 1 : -1);
-      const opacity = Math.random() * 0.10 + 0.18;
-      for (let c = 0; c < cols; c++) {
-        cells.push({ x: c * COL_GAP, y: rowY, speed, opacity, bt: Math.random() * Math.PI * 2, bs: 0.004 + Math.random() * 0.003 });
-      }
-    }
-  }
-  new ResizeObserver(resize).observe(canvas.parentElement);
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    cells.forEach(c => {
-      c.x += c.speed;
-      if (c.x > w + COL_GAP) c.x = -COL_GAP;
-      if (c.x < -COL_GAP) c.x = w + COL_GAP;
-      c.bt += c.bs;
-      const alpha = c.opacity + ((Math.sin(c.bt) + 1) / 2) * 0.15;
-      ctx.fillStyle = `hsla(220,50%,45%,${alpha})`;
-      ctx.save(); ctx.translate(c.x, c.y); ctx.scale(0.5, 0.5); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+        // Smoothly scroll to a panel's exact top using the browser's native smooth scroll.
+        let programmatic = false;
+        let releaseTimer = null;
+        function smoothTo(top) {
+            const maxTop = document.documentElement.scrollHeight - window.innerHeight;
+            const target = Math.max(0, Math.min(top, maxTop));
+            if (Math.abs(target - window.scrollY) < 2) return;
+            programmatic = true;
+            window.scrollTo({ top: target, behavior: 'smooth' });
+            clearTimeout(releaseTimer);
+            releaseTimer = setTimeout(() => { programmatic = false; }, 1000);
+        }
 
-// Section 03 — rising particles
-(function visionAnim() {
-  const canvas = document.getElementById('vision-canvas');
-  const ctx = canvas.getContext('2d');
-  let particles = [], w = 0, h = 0;
-  function spawn(randomY) {
-    return { x: Math.random() * w, y: randomY ? Math.random() * h : h + 20, vy: -(Math.random() * 0.35 + 0.15), opacity: Math.random() * 0.10 + 0.18, size: Math.random() > 0.5 ? 0.62 : 0.46, phase: Math.random() * Math.PI * 2, ps: 0.008 + Math.random() * 0.006 };
-  }
-  function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    w = r.width; h = r.height;
-    const dpr = devicePixelRatio || 1;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    particles = Array.from({ length: Math.max(90, Math.floor(w * h / 8000)) }, () => spawn(true));
-  }
-  new ResizeObserver(resize).observe(canvas.parentElement);
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    particles.forEach((p, i) => {
-      p.y += p.vy; p.phase += p.ps;
-      if (p.y < -20) { particles[i] = spawn(false); return; }
-      const alpha = p.opacity + ((Math.sin(p.phase) + 1) / 2) * 0.12;
-      ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = 'hsla(220,50%,36%,1)';
-      ctx.translate(p.x, p.y); ctx.scale(p.size, p.size); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+        // Gentle settle: once scrolling stops mid-section, ease to the nearest panel.
+        // (Native mandatory snap handles most latching; this catches deliberate mid-rests.)
+        let latchTimer = null;
+        function scheduleLatch() {
+            if (programmatic || window.innerWidth <= 820) return;
+            clearTimeout(latchTimer);
+            latchTimer = setTimeout(() => {
+                let target = panels[0].offsetTop;
+                let best = Infinity;
+                panels.forEach((p) => {
+                    const d = Math.abs(p.offsetTop - window.scrollY);
+                    if (d < best) { best = d; target = p.offsetTop; }
+                });
+                if (best > 1) smoothTo(target);
+            }, 220);
+        }
 
-// Section 05 — sine wave rows
-(function pricingAnim() {
-  const canvas = document.getElementById('pricing-canvas');
-  const ctx = canvas.getContext('2d');
-  let cells = [], w = 0, h = 0;
-  const COL_GAP = 24;
-  function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    w = r.width; h = r.height;
-    const dpr = devicePixelRatio || 1;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const cols = Math.ceil(w / COL_GAP) + 2;
-    const waveYs = [h * 0.45, h * 0.65, h * 0.85];
-    cells = [];
-    waveYs.forEach(baseY => {
-      const speed = (Math.random() * 0.22 + 0.08) * (Math.random() > 0.5 ? 1 : -1);
-      const amp = 14 + Math.random() * 20, freq = 0.018 + Math.random() * 0.016;
-      const phase = Math.random() * Math.PI * 2, opacity = 0.28 + Math.random() * 0.14;
-      for (let c = 0; c < cols; c++) cells.push({ x: c * COL_GAP, baseY, speed, amp, freq, phase, opacity });
-    });
-  }
-  new ResizeObserver(resize).observe(canvas.parentElement);
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    cells.forEach(c => {
-      c.x += c.speed;
-      if (c.x > w + COL_GAP) c.x = -COL_GAP;
-      if (c.x < -COL_GAP) c.x = w + COL_GAP;
-      const y = c.baseY + Math.sin(c.x * c.freq + c.phase) * c.amp;
-      ctx.save(); ctx.globalAlpha = c.opacity; ctx.fillStyle = 'hsla(220,50%,40%,1)';
-      ctx.translate(c.x, y); ctx.scale(0.65, 0.65); ctx.translate(-14, -14); ctx.fill(caretPath); ctx.restore();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-</script>
+        // Nav links smooth-scroll to a panel's exact top.
+        dots.forEach((a) => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const el = document.getElementById(a.dataset.target);
+                if (el) smoothTo(el.offsetTop);
+            });
+        });
+
+        window.addEventListener('scroll', () => { onScroll(); scheduleLatch(); }, { passive: true });
+        window.addEventListener('resize', onScroll);
+        render();
+    </script>
 </body>
 </html>
